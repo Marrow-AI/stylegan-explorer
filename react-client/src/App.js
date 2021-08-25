@@ -7,7 +7,7 @@ import About from './components/About.js';
 import socketIOClient from "socket.io-client";
 import store, { setSocket } from './state'
 
-const socket = socketIOClient('ws://52.206.213.41:8541');
+const socket = socketIOClient('');
 
 console.log("Connecting to socket");
 socket.on('connect', () => {
@@ -17,7 +17,7 @@ socket.on('connect', () => {
 
 
 function App() {
-  const ENDPOINT= 'http://52.206.213.41:8541'
+  const ENDPOINT= ''
   
   store.dispatch({
     type: 'END_POINT',
