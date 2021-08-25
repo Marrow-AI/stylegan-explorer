@@ -50,16 +50,16 @@ export default function Generate() {
 
 
   const handleChange = (event) => {
+    if (event.target.value === 'person') {
+      setSnapshot('ffhq')
+    } else if (event.target.value === 'happy') {
+      setSnapshot('007743')
+    }
     setDataset(event.target.value);
     store.dispatch({
       type: 'SAVE_TYPE_DATASET',
       dataset: dataset
     })
-    if (dataset === 'person') {
-      setSnapshot('ffqh')
-    } else if (dataset === 'happy') {
-      setSnapshot('007743')
-    }
   };
 
   const onSubmit = (values, ev) => {
@@ -150,7 +150,7 @@ export default function Generate() {
       <h1 className="secondTitle">{pageTitle}</h1>
       {nowEncoding.file && (
         <div className="now-encoding" >
-          <span className='encoding-loder-text'>Now encoding {nowEncoding.file}<br /><br />
+          <span className='encoding-loder-text'>Someone is encoding {nowEncoding.file}<br /><br />
           Please hold...</span>
           {loading}
         </div>
@@ -198,7 +198,7 @@ export default function Generate() {
 
             <div className="imgControler">
               <div className="output-container">
-                <img className="imgAnimation" src={animationSteps.length > 0 ? animationSteps[currentStep] : ''} width="512" height="512" alt="" />
+                <img className="imgAnimation" src={animationSteps?.length > 0 ? animationSteps[currentStep] : ' '} width="512" height="512" alt="" />
               </div>
               <div className="controls-container">
                 <div className={classes.root}>

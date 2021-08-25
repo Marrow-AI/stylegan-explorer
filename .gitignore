@@ -1,0 +1,8 @@
+node_modules/
+*.swp
+*.swo
+server/sessions/*
+geckodriver.log
+*hot*.js
+*hot*.json
+marrow

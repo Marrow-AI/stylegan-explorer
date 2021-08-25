@@ -34,7 +34,7 @@ const reducer = (state = {
   nowEncoding: {},
   nowPublishing: false,
   currentStep: 0,
-  maxSteps: 40,
+  maxSteps: 20,
   currentShuffle: 'use_step'
 }, action) => {
   switch (action.type) {  

@@ -219,9 +219,6 @@ export default function EncoderSection(props) {
 
   return (
     <div className="fileUploader">
-      <div>
-        <h1 className='thirdTitle'>{dataset}</h1>
-      </div>
       <div className="mainSectiontwo" >
         {loading}
         <div className='encodeRandom'>
@@ -242,7 +239,7 @@ export default function EncoderSection(props) {
               }) => (
 
                 <div className="upload__image-wrapper">
-                  <button disabled={isGenerating} className="btn generate"
+                  <button disabled={isGenerating || snapshot !== 'ffhq'} className="btn generate"
                     style={isDragging ? { color: 'red' } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}> Upload your image </button>
