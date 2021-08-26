@@ -34,6 +34,7 @@
     "react-compound-slider": "^2.5.0",
     "react-compound-timer": "^1.2.0",
     "react-d3-tree": "^2.0.1",
+    "react-device-detect": "^1.17.0",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.0.0",
     "react-hot-loader": "^4.12.21",
