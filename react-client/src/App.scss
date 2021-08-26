@@ -485,8 +485,10 @@ input.save {
   object-fit: contain;
   margin: 10px 40px;
   padding-bottom: 10px;
+  &:hover{
+    filter: invert(100%);
+  }
 }
-
 
 .addCred {
   /* width: 500px; */
