@@ -58,7 +58,7 @@ const Footer = () => {
           <DialogContentText>
             The GAN Explorer is an interactive web-based tool that lets you explore the latent space of
             <a className='link footer' href="https://github.com/NVlabs/stylegan" alt="" target="_blank" rel="noopener noreferrer"> StyleGAN V1</a>’s results,
-            using the dataset of <a className='link footer' href="https://thispersondoesnotexist.com/" alt="" target="_blank" rel="noopener noreferrer"> 'This Person Does Not Exist'.</a>
+            using the dataset of <a className='link footer' href="https://thispersondoesnotexist.com/" alt="" target="_blank" rel="noopener noreferrer"> 'This Person Does Not Exist'. </a>
             It invites you to encode your own images to the latent space, and create chains of key-frame animations between different points on the latent space in a collaborative way.
             <br />
             <br />
@@ -74,7 +74,7 @@ const Footer = () => {
             <br />
             <br />
             Read more about the motivation and code in this <a className='link footer' href="https://towardsdatascience.com/a-tool-for-collaborating-over-gans-latent-space-b7ea92ad63d8" alt="" target="_blank" rel="noopener noreferrer">
-              Medium post</a>. And check out our <a className='link footer' href="https://dataset.tools/" alt="" target="_blank" rel="noopener noreferrer">Dataset tool</a>.
+              Medium post</a>, and check out our <a className='link footer' href="https://dataset.tools/" alt="" target="_blank" rel="noopener noreferrer">Dataset tool</a>.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
