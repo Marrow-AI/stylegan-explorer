@@ -47,7 +47,7 @@ export default function Generate() {
   const [pageTitle, setPageTitle] = useState('EXPLORER TOOL');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
-
+  const marrowURl = 'http://localhost:8080?marrow/explore'; 
 
   const handleChange = (event) => {
     if (event.target.value === 'person') {
@@ -163,12 +163,13 @@ export default function Generate() {
           <div className="container" >
 
             {isGenerated ?
-             
                 <EncoderSection />
-             
               :
               <form key={1} className="shuffleForm" onSubmit={handleSubmit(onSubmit)} >
+                {window.location.href === marrowURl  ? 
+                (
                 <FormControl required className={classes.formControl} >
+
                   <InputLabel className="inputNew" id="demo-simple-select-helper-label" >Choose a dataset</InputLabel>
                   <Select className="select dataset" name="dataset" autoComplete="off"
                     labelId="demo-simple-select-helper-label"
@@ -182,12 +183,18 @@ export default function Generate() {
                   </Select>
                   <FormHelperText>Load a dataset of your intreset</FormHelperText>
                 </FormControl>
+                ) : (
+                  <p className='alternative-DStitle'>This Person Does Not Exist </p>
+                )
+              
+              }
 
                 <div className="stepsDiv">
                   <label className="label steps"> Number of frames:</label>
                   <input className="input steps" autoComplete="off" name="steps" value={maxSteps} type="number" onChange={handleStepsChange} />
-                  <FormHelperText>Number of frames to generate animation sequence &mdash;<br />
-                  The bigger the number the longer it will take to generate.</FormHelperText>
+                  <FormHelperText>Choose number of frames of the animation sequence &mdash;<br />
+                  The bigger the number the longer the animation will be <br/>
+                  and the longer it will take to generate.</FormHelperText>
                 </div>
 
                 <div className="divBtnGnr">
