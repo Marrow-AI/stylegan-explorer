@@ -152,6 +152,8 @@ export default function Generate() {
         <div className="now-encoding" >
           <span className='encoding-loder-text'>Someone is encoding {nowEncoding.file}<br /><br />
           Please hold...</span>
+          <br/>
+          <span className='encoding-loder-text small'>It may take a few minutes.</span>
           {loading}
         </div>
       )}
