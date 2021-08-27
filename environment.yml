@@ -73,7 +73,7 @@ dependencies:
     - itsdangerous==1.1.0
     - jinja2==2.10.3
     - keras==2.3.1
-    - keras-applications==1.0.8
+    - keras-applications==git+ssh://git@github.com/Avnerus/keras-applications.git@patch
     - keras-preprocessing==1.1.0
     - lmdb==0.97
     - markdown==3.1.1

@@ -47,7 +47,8 @@ export default function Generate() {
   const [pageTitle, setPageTitle] = useState('EXPLORER TOOL');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
-  const marrowURl = 'http://localhost:8080?marrow/explore'; 
+
+  const searchParams = new URLSearchParams(window.location.search);
 
   const handleChange = (event) => {
     if (event.target.value === 'person') {
@@ -166,7 +167,8 @@ export default function Generate() {
                 <EncoderSection />
               :
               <form key={1} className="shuffleForm" onSubmit={handleSubmit(onSubmit)} >
-                {window.location.href === marrowURl  ? 
+                {searchParams.has('marrow')
+? 
                 (
                 <FormControl required className={classes.formControl} >
 

@@ -28,6 +28,8 @@ from flask_compress import Compress
 from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO,send,emit,join_room
 
+from keras import backend as K
+
 parser = argparse.ArgumentParser(description='Marrow StyleGAN Latent space explorer')
 
 parser.add_argument('--dummy', action='store_true' , help='Use a Dummy GAN')
@@ -59,16 +61,22 @@ class Gan(Thread):
 
     def run(self):
         print("GAN Running")
-        self.load_snapshot(self.current_snapshot)
-        self.load_latent_source_dlatents()
-        self.load_latent_dest_dlatents()
-        self.linespaces = np.linspace(0, 1, self.steps)
-        print("Loaded linespaces {}".format(self.linespaces.shape))
-        self.linespace_i = -1;
-        self.number_frames = 0
-        self.fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
-        self.forward = True
-        self.push_frames()
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        with tf.Graph().as_default():
+            with tf.Session(config=config).as_default():
+                self.load_snapshot(self.current_snapshot)
+                self.load_latent_source_dlatents()
+                self.load_latent_dest_dlatents()
+                self.linespaces = np.linspace(0, 1, self.steps)
+                print("Loaded linespaces {}".format(self.linespaces.shape))
+                self.linespace_i = -1;
+                self.number_frames = 0
+                self.fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+                self.forward = True
+                self.push_frames()
+
+        print("GAN closing session")
 
     def load_latent_source(self):
         self.latent_source = self.rnd.randn(512)[None, :]
@@ -97,10 +105,8 @@ class Gan(Thread):
 
         if snapshot == 'ffhq':
             dimension =  18
-            img_size = 1024
         else:
             dimension = 16
-            img_size = 512
 
         with open(url, 'rb') as f:
             self._G, self._D, self.Gs = pickle.load(f)
@@ -170,8 +176,6 @@ class Gan(Thread):
                 print("Shuffling to {} steps {} snapshot {} type {}".format(future, args['steps'],args['snapshot'], args['type']))
                 if args['snapshot'] != self.current_snapshot:
                     self.current_snapshot = args['snapshot']
-                    tf.get_default_session().close()
-                    tf.reset_default_graph()
                     print('New snapshot, quiting GAN thread')
                     break
                 else:
@@ -247,8 +251,6 @@ class Gan(Thread):
 
                         if data['snapshot'] != self.current_snapshot:
                             self.current_snapshot = data['snapshot']
-                            tf.get_default_session().close()
-                            tf.reset_default_graph()
                             print('New snapshot, quiting GAN thread')
                             self.loop.call_soon_threadsafe(
                                 future.set_result, {'status' : 'new_snapshot', 'snapshot': data['snapshot']}
@@ -306,6 +308,11 @@ class Gan(Thread):
                             )
                         )
                     )
+
+                    self.loop.call_soon_threadsafe(
+                        future.set_result, "OK"
+                    )
+                    
                     f_src = tempfile.NamedTemporaryFile(suffix='.jpg').name
                     f_aligned = tempfile.NamedTemporaryFile(suffix='.png').name
                     f_gen = tempfile.NamedTemporaryFile(suffix='.png').name
@@ -345,10 +352,6 @@ class Gan(Thread):
 
                     with self.app.app_context():
                         emit('nowEncoding',{'file': None},namespace='/',broadcast=True)
-                    
-                    self.loop.call_soon_threadsafe(
-                        future.set_result, "OK"
-                    )
                     
                     future = self.loop.create_future()
                     self.queue.put((future, "publish", None))
