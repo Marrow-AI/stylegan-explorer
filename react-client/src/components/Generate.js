@@ -34,14 +34,14 @@ export default function Generate() {
   const [view, setView] = useState();
   const { register, handleSubmit } = useForm({ mode: "onBlur" });
   const classes = useStyles();
-  const [dataset, setDataset] = useState('');
+  const [dataset, setDataset] = useState('person');
   const [snapshot, setSnapshot] = useState('ffhq');
   const [generating, setGenerating] = useState('use_step');
   const maxSteps = useSelector(state => state.maxSteps);
   const animationSteps = useSelector(state => state.animationSteps);
   const currentStep = useSelector(state => state.currentStep);
   const currentShuffle = useSelector(state => state.currentShuffle);
-  const nowEncoding = useSelector(state => state.nowEncoding);
+  const serverState = useSelector(state => state.serverState);
   const ENDPOINT = useSelector(state => state.ENDPOINT);
   const [isGenerated, setIsGenerated] = useState(false);
   const [pageTitle, setPageTitle] = useState('EXPLORER TOOL');
@@ -49,7 +49,7 @@ export default function Generate() {
   const [loading, showLoading, hideLoading] = useSpinner();
 
   const searchParams = new URLSearchParams(window.location.search);
-
+  
   const handleChange = (event) => {
     if (event.target.value === 'person') {
       setSnapshot('ffhq')
@@ -106,11 +106,6 @@ export default function Generate() {
       })
       .then(() => {
         showLoading();
-        setTimeout(() => {
-          setIsGenerated(true);
-          changingPageTitle()
-          hideLoading()
-        }, 2000)
       })
       .catch((e) => {
         console.log("Error generating", e);
@@ -146,12 +141,24 @@ export default function Generate() {
     ))
   }
 
+  useEffect(() => {
+    console.log("STATE", serverState.state, "isGenerated", isGenerated)
+    if (serverState.state != 'idle' && !isGenerated) {
+      console.log("TOGGLING", dataset);
+      setTimeout(() => {
+        changingPageTitle()
+        hideLoading()
+        setIsGenerated(true);
+      },100)
+    }
+  }, [serverState])
+
   return (
     <>
       <h1 className="secondTitle">{pageTitle}</h1>
-      {nowEncoding.file && (
+      {serverState?.state == 'encoding' && (
         <div className="now-encoding" >
-          <span className='encoding-loder-text'>Someone is encoding {nowEncoding.file}<br /><br />
+          <span className='encoding-loder-text'>Someone is encoding {serverState?.file}<br /><br />
           Please hold...</span>
           <br/>
           <span className='encoding-loder-text small'>It may take a few minutes.</span>

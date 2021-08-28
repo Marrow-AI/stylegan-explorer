@@ -57,6 +57,7 @@ class Gan(Thread):
         self.args = args
         self.steps = int(args.steps) if 'steps' in args else 100
         self.current_snapshot = args.snapshot
+        self.state = {'state': 'idle'}
         Thread.__init__(self)
 
     def run(self):
@@ -121,6 +122,9 @@ class Gan(Thread):
                 self.perceptual_model = None
         print(self.Gs)
 
+    def broadcast_state(self):
+        emit('serverState',self.state, namespace='/', broadcast=True)
+
     def emit_frame(self, topic, index):
         self.linespace_i = index 
         print(self.linespace_i)
@@ -162,11 +166,20 @@ class Gan(Thread):
                     future.set_result, "OK"
                 )
                 with self.app.app_context():
-                    emit('publishStart',{'steps':self.steps},namespace='/',broadcast=True)
+                    self.state = {
+                        'state': 'publishing',
+                        'steps': self.steps
+                    }
+                    self.broadcast_state()
                     for i in range(self.steps):
                         self.emit_frame('animationStep', i)
                         time.sleep(0.5)
-                    emit('publishStop',{'steps':self.steps},namespace='/',broadcast=True)
+
+                    self.state = {
+                        'state': 'idle',
+                        'steps': self.steps
+                    }
+                    self.broadcast_state()
 
                     self.linespace_i = 0
 
@@ -301,7 +314,11 @@ class Gan(Thread):
                     if not self.perceptual_model:
                         raise Exception('No perceptual model for this snapshot.')
                     with self.app.app_context():
-                        emit('nowEncoding',{'file':args["fileName"]},namespace='/',broadcast=True)
+                        self.state = {
+                            'state': 'encoding',
+                            'file': args["fileName"]
+                        }
+                        self.broadcast_state()
                     image = Image.open(
                             io.BytesIO(base64.b64decode(
                                 args["data"][args["data"].find(",") + 1:]
@@ -472,6 +489,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 def on_connect():
     print("Client connected {}".format(request.sid))
     join_room(request.sid)
+    global gan
+    if gan:
+        emit('serverState',gan.state, namespace='/')
     
 
 @app.route('/generate')

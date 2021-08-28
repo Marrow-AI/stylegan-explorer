@@ -5,53 +5,40 @@ const animationStepHandler = (data) => {
   store.dispatch(addAnimationStep(data.image, data.step));
 }
 
-const finalDestinationHandler = (data) => {
-  store.dispatch(setFinalDestination(data.image));
-}
-
-const publishStartHandler = (data) => {
-  store.dispatch(setNowPublishing(true));
-  store.dispatch(clearAnimationSteps());
-  store.dispatch(setMaxSteps(data.steps));
-}
-
-const publishStopHandler = (data) => {
-  store.dispatch(setNowPublishing(false));
-}
-
 const nowEncodingHandler = (data) => {
   console.log("NowEncoding state", data)
   store.dispatch(setNowEncoding(data));
 }
 
+const serverStateHandler = (data) => {
+  console.log("Server state", data)
+  if (data.state == 'publishing') {
+    store.dispatch(clearAnimationSteps());
+    store.dispatch(setMaxSteps(data.steps));
+  }
+  store.dispatch(setServerState(data));
+}
+
 const reducer = (state = {
   socket: null,
-  snapshot: '',
+  snapshot: 'ffhq',
   Get_Image: '',
   file_name: '',
   animationSteps: [],
-  finalDestination: null,
-  nowEncoding: {},
-  nowPublishing: false,
   currentStep: 0,
   maxSteps: 20,
-  currentShuffle: 'use_step'
+  currentShuffle: 'use_step',
+  serverState: {state: 'idle'}
 }, action) => {
   switch (action.type) {  
     case 'SET_SOCKET': {
       console.log("Setting socket", action.socket);
       if (state.socket) {
-        state.socket.off('finalDestination', finalDestinationHandler)
         state.socket.off('animationStep', animationStepHandler)
-        state.socket.off('publishStart', publishStartHandler)
-        state.socket.off('publishStop', publishStopHandler)
-        state.socket.off('nowEncoding', nowEncodingHandler)
+        state.socket.off('serverState', serverStateHandler)
       }
-      action.socket.on('finalDestination', finalDestinationHandler)
       action.socket.on('animationStep', animationStepHandler)
-      action.socket.on('publishStart', publishStartHandler)
-      action.socket.on('publishStop', publishStopHandler)
-      action.socket.on('nowEncoding', nowEncodingHandler)
+      action.socket.on('serverState', serverStateHandler)
 
       return {...state, socket: action.socket}
   }
@@ -80,10 +67,21 @@ const reducer = (state = {
     }
   }
   case 'ADD_ANIMATION_STEP': {
-    return {
-      ...state,
-      animationSteps: [...state.animationSteps,"data:image/jpeg;base64," + action.image],
-      currentStep: action.step
+    if (action.step > state.animationSteps.length) {
+      console.log("Came in the middle!", action.step, state.animationSteps.length);
+      // Came in the middle of a generation, create an empty array of the images so far
+      return {
+        ...state,
+        animationSteps: [...Array(action.step).fill(null),"data:image/jpeg;base64," + action.image],
+        currentStep: action.step
+      }
+    }
+    else {
+      return {
+        ...state,
+        animationSteps: [...state.animationSteps,"data:image/jpeg;base64," + action.image],
+        currentStep: action.step
+      }
     }
   }
   case 'CLEAR_ANIMATION_STEPS': {
@@ -112,18 +110,6 @@ const reducer = (state = {
       maxSteps: action.maxSteps
     }
   }
-  case 'SET_NOW_ENCODING': {
-    return {
-      ...state,
-      nowEncoding: action.data
-    }
-  }
-  case 'SET_NOW_PUBLISHING': {
-    return {
-      ...state,
-      nowPublishing: action.data
-    }
-  }
   case 'GET_IMAGE': {
     return {
       ...state,
@@ -136,10 +122,10 @@ const reducer = (state = {
       file_name: action.images
     }
   }
-  case 'SET_FINAL_DESTINATION': {
+  case 'SET_SERVER_STATE': {
     return {
       ...state,
-      finalDestination: "data:image/jpeg;base64," + action.image
+      serverState: action.data
     }
   }
   default:
@@ -156,11 +142,6 @@ export const addAnimationStep = (image, step) => ({
   type: 'ADD_ANIMATION_STEP',
   image,
   step
-})
-
-export const setFinalDestination = (image) => ({
-  type: 'SET_FINAL_DESTINATION',
-  image
 })
 
 export const clearAnimationSteps  = () => ({
@@ -183,13 +164,8 @@ export const setMaxSteps  = (maxSteps) => ({
   maxSteps
 })
 
-export const setNowEncoding  = (data) => ({
-  type: 'SET_NOW_ENCODING',
-  data
-})
-
-export const setNowPublishing  = (data) => ({
-  type: 'SET_NOW_PUBLISHING',
+export const setServerState  = (data) => ({
+  type: 'SET_SERVER_STATE',
   data
 })
 

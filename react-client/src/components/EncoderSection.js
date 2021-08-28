@@ -17,9 +17,8 @@ export default function EncoderSection(props) {
   const currentShuffle = useSelector(state => state.currentShuffle);
   const snapshot = useSelector(state => state.snapshot);
   const maxSteps = useSelector(state => state.maxSteps);
-  const [isGenerating, setIsGenerating] = useState(true);
   const animationSteps = useSelector(state => state.animationSteps);
-  const nowPublishing = useSelector(state => state.nowPublishing);
+  const serverState = useSelector(state => state.serverState);
   const [margin, setMargin] = useState(-18);
   const [countNodes, setCountNodes] = useState(1);
   const targetRef = useRef();
@@ -116,7 +115,6 @@ export default function EncoderSection(props) {
   }
 
   const onSubmit = () => {
-    setIsGenerating(true)
     let nextParent;
     if (currentStep < maxSteps -1) {
       nextParent = addBetween({
@@ -164,7 +162,6 @@ export default function EncoderSection(props) {
   }
 
   const onChange = (imageList, addUpdateIndex) => {
-    setIsGenerating(true)
     store.dispatch({
       type: 'SAVE_FILE_NAME',
       file_name: images
@@ -205,8 +202,7 @@ export default function EncoderSection(props) {
       setMargin(margin - 30)
       setCountNodes(1)
     }
-    if (currentStep === (maxSteps - 1) && nowPublishing) {
-      setIsGenerating(false)
+    if (currentStep === (maxSteps - 1) && serverState?.state == 'publishing') {
       const childId = addChild({
         name: '',
         imageUrl: animationSteps[currentStep]
@@ -223,7 +219,7 @@ export default function EncoderSection(props) {
         {loading}
         <div className='encodeRandom'>
           <div className="encoderSection">
-            <button disabled={isGenerating} className="btn generate" name="generate" type="onSubmit"
+            <button disabled={serverState?.state != 'idle'} className="btn generate" name="generate" type="onSubmit"
               onClick={onSubmit}>Generate Randomly</button>
 
             <ImageUploading
@@ -239,7 +235,7 @@ export default function EncoderSection(props) {
               }) => (
 
                 <div className="upload__image-wrapper">
-                  <button disabled={isGenerating || snapshot !== 'ffhq'} className="btn generate"
+                  <button disabled={serverState?.state != 'idle' || snapshot !== 'ffhq'} className="btn generate"
                     style={isDragging ? { color: 'red' } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}> Upload your image </button>
