@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ImageUploading from 'react-images-uploading';
-import store from '../state';
+import store, { setMyEncodingFile } from '../state';
 import { useSelector } from 'react-redux';
 import useSpinner from './useSpinner';
 import Tree from 'react-d3-tree';
@@ -115,14 +115,6 @@ export default function EncoderSection(props) {
   }
 
   const onSubmit = () => {
-    let nextParent;
-    if (currentStep < maxSteps -1) {
-      nextParent = addBetween({
-        name: currentStep,
-        imageUrl: animationSteps[currentStep]
-      })
-      setCurrentParent(nextParent);
-    }
 
     const data = {
       dataset: dataset,
@@ -167,7 +159,6 @@ export default function EncoderSection(props) {
       file_name: images
     })
     setImages(images => [...images, ...imageList]);
-    console.log("Submitting image for encoding!", imageList)
     fetch(ENDPOINT + '/encode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -186,8 +177,8 @@ export default function EncoderSection(props) {
       .then((data) => {
         if (data.result === "OK") {
           showLoading();
-          setCountNodes(countNodes +1)
-          console.log("Result!", data)
+          setCountNodes(countNodes +1);
+          store.dispatch(setMyEncodingFile(imageList[0].file.name));
         } else {
           alert(data.result);
         }
@@ -209,8 +200,23 @@ export default function EncoderSection(props) {
       }, currentParent)
       setCurrentParent(childId);
       hideLoading()
+      store.dispatch(setMyEncodingFile(''));
     }
   }, [currentStep])
+
+  useEffect(() => {
+    if (
+      serverState.state == 'publishing' && 
+      serverState?.sourceStep < maxSteps -1 && 
+      tree.children.length > 0
+    ) {
+        const nextParent = addBetween({
+          name: serverState.sourceStep,
+          imageUrl: animationSteps[serverState.sourceStep]
+        })
+        setCurrentParent(nextParent);
+    }
+  }, [serverState])
 
 
   return (

@@ -58,6 +58,7 @@ class Gan(Thread):
         self.steps = int(args.steps) if 'steps' in args else 100
         self.current_snapshot = args.snapshot
         self.state = {'state': 'idle'}
+        self.source_step = None
         Thread.__init__(self)
 
     def run(self):
@@ -168,7 +169,8 @@ class Gan(Thread):
                 with self.app.app_context():
                     self.state = {
                         'state': 'publishing',
-                        'steps': self.steps
+                        'steps': self.steps,
+                        'sourceStep': self.source_step
                     }
                     self.broadcast_state()
                     for i in range(self.steps):
@@ -203,9 +205,9 @@ class Gan(Thread):
                             self.latent_source = self.latent_dest
                             self.load_latent_dest_dlatents()
                         elif args['type'] == 'use_step':
-                            source_step = int(args['currentStep'])
-                            print("Use step {} as source".format(source_step))
-                            self.latent_source = (self.linespaces[source_step] * self.latent_dest + (1-self.linespaces[source_step])*self.latent_source)
+                            self.source_step = int(args['currentStep'])
+                            print("Use step {} as source".format(self.source_step))
+                            self.latent_source = (self.linespaces[self.source_step] * self.latent_dest + (1-self.linespaces[self.source_step])*self.latent_source)
                             self.load_latent_dest_dlatents()
                         else:
                             raise Exception('Invalid generation type')
@@ -358,9 +360,9 @@ class Gan(Thread):
                     gen_img.save(f_gen, 'PNG')
 
                     print("Wrote generated image to {}".format(f_gen))
-                    source_step = int(args['currentStep'])
-                    print("Use step {} as source".format(source_step))
-                    self.latent_source = (self.linespaces[source_step] * self.latent_dest + (1-self.linespaces[source_step])*self.latent_source)
+                    self.source_step = int(args['currentStep'])
+                    print("Use step {} as source".format(self.source_step))
+                    self.latent_source = (self.linespaces[self.source_step] * self.latent_dest + (1-self.linespaces[self.source_step])*self.latent_source)
 
                     self.latent_dest = generated_dlatents
                     print("Set latent dest to {}".format(self.latent_dest.shape))

@@ -12,11 +12,11 @@ const nowEncodingHandler = (data) => {
 
 const serverStateHandler = (data) => {
   console.log("Server state", data)
+  store.dispatch(setServerState(data));
   if (data.state == 'publishing') {
     store.dispatch(clearAnimationSteps());
     store.dispatch(setMaxSteps(data.steps));
   }
-  store.dispatch(setServerState(data));
 }
 
 const reducer = (state = {
@@ -25,6 +25,7 @@ const reducer = (state = {
   Get_Image: '',
   file_name: '',
   animationSteps: [],
+  myEncodingFile:'',
   currentStep: 0,
   maxSteps: 20,
   currentShuffle: 'use_step',
@@ -68,7 +69,6 @@ const reducer = (state = {
   }
   case 'ADD_ANIMATION_STEP': {
     if (action.step > state.animationSteps.length) {
-      console.log("Came in the middle!", action.step, state.animationSteps.length);
       // Came in the middle of a generation, create an empty array of the images so far
       return {
         ...state,
@@ -128,6 +128,12 @@ const reducer = (state = {
       serverState: action.data
     }
   }
+  case 'SET_MY_ENCODING_FILE': {
+    return {
+      ...state,
+      myEncodingFile: action.value
+    }
+  }
   default:
       return state;
   }
@@ -167,6 +173,11 @@ export const setMaxSteps  = (maxSteps) => ({
 export const setServerState  = (data) => ({
   type: 'SET_SERVER_STATE',
   data
+})
+
+export const setMyEncodingFile  = (value) => ({
+  type: 'SET_MY_ENCODING_FILE',
+  value
 })
 
 const store = createStore(

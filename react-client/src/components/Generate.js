@@ -47,6 +47,7 @@ export default function Generate() {
   const [pageTitle, setPageTitle] = useState('EXPLORER TOOL');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
+  const myEncodingFile = useSelector(state => state.myEncodingFile);
 
   const searchParams = new URLSearchParams(window.location.search);
   
@@ -142,9 +143,7 @@ export default function Generate() {
   }
 
   useEffect(() => {
-    console.log("STATE", serverState.state, "isGenerated", isGenerated)
     if (serverState.state != 'idle' && !isGenerated) {
-      console.log("TOGGLING", dataset);
       setTimeout(() => {
         changingPageTitle()
         hideLoading()
@@ -158,9 +157,23 @@ export default function Generate() {
       <h1 className="secondTitle">{pageTitle}</h1>
       {serverState?.state == 'encoding' && (
         <div className="now-encoding" >
-          <span className='encoding-loder-text'>Someone is encoding {serverState?.file}<br /><br />
-          Please hold...</span>
-          <br/>
+          {
+            serverState.file === myEncodingFile ?
+            <span className='encoding-loder-text'>Encoding your image: {serverState?.file}
+              <br/>
+              <br/>
+              Please hold...
+              <br/>
+            </span>
+            :
+            <span className='encoding-loder-text'>Someone is encoding: {serverState?.file}
+              <br/>
+              <br/>
+              Please hold...
+              <br/>
+            </span>
+          }
+
           <span className='encoding-loder-text small'>It may take a few minutes.</span>
           {loading}
         </div>
