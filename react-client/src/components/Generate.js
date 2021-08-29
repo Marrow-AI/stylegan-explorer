@@ -42,6 +42,7 @@ export default function Generate() {
   const currentStep = useSelector(state => state.currentStep);
   const currentShuffle = useSelector(state => state.currentShuffle);
   const serverState = useSelector(state => state.serverState);
+  const myEncodingFile = useSelector(state => state.myEncodingFile);
   const ENDPOINT = useSelector(state => state.ENDPOINT);
   const [isGenerated, setIsGenerated] = useState(false);
   const [pageTitle, setPageTitle] = useState('LATENT SPACE EXPLORER');
