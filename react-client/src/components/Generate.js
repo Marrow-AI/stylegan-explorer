@@ -44,10 +44,9 @@ export default function Generate() {
   const serverState = useSelector(state => state.serverState);
   const ENDPOINT = useSelector(state => state.ENDPOINT);
   const [isGenerated, setIsGenerated] = useState(false);
-  const [pageTitle, setPageTitle] = useState('EXPLORER TOOL');
+  const [pageTitle, setPageTitle] = useState('LATENT SPACE EXPLORER');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
-  const myEncodingFile = useSelector(state => state.myEncodingFile);
 
   const searchParams = new URLSearchParams(window.location.search);
   
@@ -69,9 +68,13 @@ export default function Generate() {
       type: 'SAVE_SNAPSHOT',
       snapshot: snapshot
     })
+    store.dispatch({
+      type: 'SAVE_TYPE_DATASET',
+      dataset: dataset
+    })
     const form = ev.target;
     const data = {
-      dataset: form.dataset.value,
+      dataset: dataset,
       steps: form.steps.value,
       snapshot: snapshot,
       type: currentShuffle,
@@ -143,7 +146,8 @@ export default function Generate() {
   }
 
   useEffect(() => {
-    if (serverState.state != 'idle' && !isGenerated) {
+    if (serverState.state !== 'idle' && !isGenerated) {
+      console.log("TOGGLING", dataset);
       setTimeout(() => {
         changingPageTitle()
         hideLoading()
