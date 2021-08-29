@@ -44,7 +44,7 @@ export default function Generate() {
   const serverState = useSelector(state => state.serverState);
   const ENDPOINT = useSelector(state => state.ENDPOINT);
   const [isGenerated, setIsGenerated] = useState(false);
-  const [pageTitle, setPageTitle] = useState('EXPLORER TOOL');
+  const [pageTitle, setPageTitle] = useState('LATENT SPACE EXPLORER');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
 
