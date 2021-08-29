@@ -49,18 +49,16 @@ export default function Generate() {
   const [loading, showLoading, hideLoading] = useSpinner();
 
   const searchParams = new URLSearchParams(window.location.search);
-  
+
   const handleChange = (event) => {
-    if (event.target.value === 'person') {
-      setSnapshot('ffhq')
-    } else if (event.target.value === 'happy') {
-      setSnapshot('007743')
+    if (searchParams.has('marrow')) {
+      if (event.target.value === 'person') {
+        setSnapshot('ffhq')
+      } else if (event.target.value === 'happy') {
+        setSnapshot('007743')
+      }
+      setDataset(event.target.value);
     }
-    setDataset(event.target.value);
-    store.dispatch({
-      type: 'SAVE_TYPE_DATASET',
-      dataset: dataset
-    })
   };
 
   const onSubmit = (values, ev) => {
@@ -68,9 +66,14 @@ export default function Generate() {
       type: 'SAVE_SNAPSHOT',
       snapshot: snapshot
     })
+    store.dispatch({
+      type: 'SAVE_TYPE_DATASET',
+      dataset: dataset
+    })
     const form = ev.target;
     const data = {
-      dataset: form.dataset.value,
+      // dataset: form.dataset.value,
+      dataset: dataset,
       steps: form.steps.value,
       snapshot: snapshot,
       type: currentShuffle,
@@ -143,13 +146,13 @@ export default function Generate() {
 
   useEffect(() => {
     console.log("STATE", serverState.state, "isGenerated", isGenerated)
-    if (serverState.state != 'idle' && !isGenerated) {
+    if (serverState.state !== 'idle' && !isGenerated) {
       console.log("TOGGLING", dataset);
       setTimeout(() => {
         changingPageTitle()
         hideLoading()
         setIsGenerated(true);
-      },100)
+      }, 100)
     }
   }, [serverState])
 
@@ -159,8 +162,8 @@ export default function Generate() {
       {serverState?.state == 'encoding' && (
         <div className="now-encoding" >
           <span className='encoding-loder-text'>Someone is encoding {serverState?.file}<br /><br />
-          Please hold...</span>
-          <br/>
+            Please hold...</span>
+          <br />
           <span className='encoding-loder-text small'>It may take a few minutes.</span>
           {loading}
         </div>
@@ -171,39 +174,39 @@ export default function Generate() {
           <div className="container" >
 
             {isGenerated ?
-                <EncoderSection />
+              <EncoderSection />
               :
               <form key={1} className="shuffleForm" onSubmit={handleSubmit(onSubmit)} >
                 {searchParams.has('marrow')
-? 
-                (
-                <FormControl required className={classes.formControl} >
+                  ?
+                  (
+                    <FormControl required className={classes.formControl} >
 
-                  <InputLabel className="inputNew" id="demo-simple-select-helper-label" >Choose a dataset</InputLabel>
-                  <Select className="select dataset" name="dataset" autoComplete="off"
-                    labelId="demo-simple-select-helper-label"
-                    id="demo-simple-select-helper"
-                    value={dataset}
-                    onChange={handleChange}
-                    ref={register}
-                  >
-                    <MenuItem value={"person"}>This Person Does Not Exist</MenuItem>
-                    <MenuItem value={"happy"} >Happy Families Dinner</MenuItem>
-                  </Select>
-                  <FormHelperText>Load a dataset of your intreset</FormHelperText>
-                </FormControl>
-                ) : (
-                  <p className='alternative-DStitle'>This Person Does Not Exist </p>
-                )
-              
-              }
+                      <InputLabel className="inputNew" id="demo-simple-select-helper-label" >Choose a dataset</InputLabel>
+                      <Select className="select dataset" name="dataset" autoComplete="off"
+                        labelId="demo-simple-select-helper-label"
+                        id="demo-simple-select-helper"
+                        value={dataset}
+                        onChange={handleChange}
+                        ref={register}
+                      >
+                        <MenuItem value={"person"}>This Person Does Not Exist</MenuItem>
+                        <MenuItem value={"happy"} >Happy Families Dinner</MenuItem>
+                      </Select>
+                      <FormHelperText>Load a dataset of your intreset</FormHelperText>
+                    </FormControl>
+                  ) : (
+                    <p className='alternative-DStitle'>This Person Does Not Exist </p>
+                  )
+
+                }
 
                 <div className="stepsDiv">
                   <label className="label steps"> Number of frames:</label>
                   <input className="input steps" autoComplete="off" name="steps" value={maxSteps} type="number" onChange={handleStepsChange} />
                   <FormHelperText>Choose number of frames of the animation sequence &mdash;<br />
-                  The bigger the number the longer the animation will be <br/>
-                  and the longer it will take to generate.</FormHelperText>
+                    The bigger the number the longer the animation will be <br />
+                    and the longer it will take to generate.</FormHelperText>
                 </div>
 
                 <div className="divBtnGnr">
