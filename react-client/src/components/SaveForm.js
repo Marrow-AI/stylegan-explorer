@@ -124,6 +124,7 @@ export default function SaveForm() {
   return(
     <>
     <div className="saveLoad">
+    <p className='explain-slider'>*Select the position from which to continue the exploration.</p>
     <button className="btn download" id="download-video" onClick={handleDownload}>Download Animation</button>
 
     {/* <form className="saveForm" key={2} id="save" onSubmit={handleSubmit2(handleSave)}> */}

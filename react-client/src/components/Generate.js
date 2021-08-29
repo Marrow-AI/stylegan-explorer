@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from 'react-redux';
 import { useForm } from "react-hook-form";
 import Footer from './Footer.js';
@@ -48,6 +48,7 @@ export default function Generate() {
   const [pageTitle, setPageTitle] = useState('LATENT SPACE EXPLORER');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
+  let imageRef = useRef();
 
   const searchParams = new URLSearchParams(window.location.search);
   
@@ -119,9 +120,9 @@ export default function Generate() {
 
   function changingPageTitle() {
     if (dataset === 'person') {
-      setPageTitle('This Person Does Not Exist')
+      setPageTitle('Flickr-Faces-HQ Dataset')
     } else if (dataset === 'happy') {
-      setPageTitle('Happy Families Dinner')
+      setPageTitle('Happy Families Dinner Dataset')
     }
   }
 
@@ -146,6 +147,10 @@ export default function Generate() {
     ))
   }
 
+  // useEffect(() => {
+  //   console.log(imageRef.current.getBoundingClientRect())
+  // })
+
   useEffect(() => {
     if (serverState.state !== 'idle' && !isGenerated) {
       console.log("TOGGLING", dataset);
@@ -160,6 +165,7 @@ export default function Generate() {
   return (
     <>
       <h1 className="secondTitle">{pageTitle}</h1>
+      <p className='num-people'>There is now <span className='num-people number'>X</span> people together with you.</p>
       {serverState?.state == 'encoding' && (
         <div className="now-encoding" >
           {
@@ -167,19 +173,17 @@ export default function Generate() {
             <span className='encoding-loder-text'>Encoding your image: {serverState?.file}
               <br/>
               <br/>
-              Please hold...
+              Please hold...It may take a few minutes.
               <br/>
             </span>
             :
             <span className='encoding-loder-text'>Someone is encoding: {serverState?.file}
               <br/>
               <br/>
-              Please hold...
+              Please hold...It may take a few minutes.
               <br/>
             </span>
           }
-
-          <span className='encoding-loder-text small'>It may take a few minutes.</span>
           {loading}
         </div>
       )}
@@ -205,13 +209,13 @@ export default function Generate() {
                     onChange={handleChange}
                     ref={register}
                   >
-                    <MenuItem value={"person"}>This Person Does Not Exist</MenuItem>
-                    <MenuItem value={"happy"} >Happy Families Dinner</MenuItem>
+                    <MenuItem value={"person"}>Flickr-Faces-HQ Dataset</MenuItem>
+                    <MenuItem value={"happy"} >Happy Families Dinner Dataset</MenuItem>
                   </Select>
                   <FormHelperText>Load a dataset of your intreset</FormHelperText>
                 </FormControl>
                 ) : (
-                  <p className='alternative-DStitle'>This Person Does Not Exist </p>
+                  <p className='alternative-DStitle'>Flickr-Faces-HQ Dataset </p>
                 )
               
               }
@@ -233,7 +237,7 @@ export default function Generate() {
             {loading}
 
             <div className="imgControler">
-              <div className="output-container">
+              <div ref={imageRef} className="output-container">
                 <img className="imgAnimation" src={animationSteps?.length > 0 ? animationSteps[currentStep] : ' '} width="512" height="512" alt="" />
               </div>
               <div className="controls-container">
@@ -251,10 +255,12 @@ export default function Generate() {
                 </div>
               </div>
             </div>
-
           </div>
-          {isGenerated ?
-            <SaveForm /> : ''}
+          {isGenerated ?   
+          <div className='downloadDiv'>       
+            <SaveForm />
+          </div>
+            : ''}
         </div>
       </div>
       <Footer />

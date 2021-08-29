@@ -19,19 +19,31 @@ export default function EncoderSection(props) {
   const maxSteps = useSelector(state => state.maxSteps);
   const animationSteps = useSelector(state => state.animationSteps);
   const serverState = useSelector(state => state.serverState);
+  const [r, setR] = useState(35)
+  const [click, setClick] = useState(false)
   const [margin, setMargin] = useState(-18);
   const [countNodes, setCountNodes] = useState(1);
-  const targetRef = useRef();
+  let targetRef = useRef();
   const [dimensions, setDimension] = useState({});
   const [tree, setTree] = useState({
     name: 'root',
     children: [],
     attributes: {
       uuid: "ROOT"
-    }
+    },
   });
 
   const [currentParent, setCurrentParent] = useState("ROOT");
+
+  const handleClick = () => {
+    setClick(!click)
+    if(click) {
+      setR(55)
+    }
+    if(!click) {
+      setR(35)
+    }
+  }
 
   const renderRectSvgNode = ({ nodeDatum, toggleNode }) => (
     <g>
@@ -42,11 +54,11 @@ export default function EncoderSection(props) {
               <image x="0" y="0" width="1024" height="1024" href={nodeDatum.attributes.image}></image>
             </pattern>
           </defs>
-          <circle r="35" onClick={toggleNode} fill={`url(#image-${nodeDatum.attributes.uuid}`} opacity='0.9' stroke='#3F51B5' />
+          <circle r={r} onClick={handleClick} fill={`url(#image-${nodeDatum.attributes.uuid}`} opacity='0.9' stroke='#3F51B5' />
         </>
       ) : (
         <>
-          <circle r="5" fill='#000' stroke='transparent' onClick={toggleNode} />
+          <circle r="5" fill='#000' stroke='transparent' onClick={handleClick} />
         </>
       )}
 
@@ -65,9 +77,11 @@ export default function EncoderSection(props) {
         attributes: {
           image: data.imageUrl,
           uuid: uniqueId()
-        }, children: []
+        }, 
+        children: [],
       }
     ]
+    setCountNodes(countNodes + 1)
     console.log("Tree", treeClone);
     setTree(treeClone);
     return lastChild.uuid;
@@ -85,9 +99,11 @@ export default function EncoderSection(props) {
         attributes: {
           image: data.imageUrl,
           uuid: newId,
-        }, children: []
+        }, 
+        children: [],
       }
     ]
+    setCountNodes(countNodes + 1)
     console.log("Tree", treeClone);
     setTree(treeClone);
     return newId;
@@ -105,9 +121,10 @@ export default function EncoderSection(props) {
       attributes: {
         image: data.imageUrl,
         uuid: uniqueId()
-      }, children: [ lastChild.data ]
+      }, 
+      children: [ lastChild.data ],
     }
-
+    // setCountNodes(countNodes + 1)
     parent.data.children = [between];
     console.log("Tree", treeClone);
     setTree(treeClone);
@@ -115,7 +132,6 @@ export default function EncoderSection(props) {
   }
 
   const onSubmit = () => {
-
     const data = {
       dataset: dataset,
       steps: maxSteps,
@@ -145,7 +161,6 @@ export default function EncoderSection(props) {
         console.log("Publish result", data);
         if (data.result === "OK") {
           showLoading();
-          setCountNodes(countNodes +1)
           console.log("Server is publishing!");
         } else {
           alert(data.result);
@@ -176,8 +191,8 @@ export default function EncoderSection(props) {
       .then(res => res.json())
       .then((data) => {
         if (data.result === "OK") {
+          setCountNodes(countNodes + 1)
           showLoading();
-          setCountNodes(countNodes +1);
           store.dispatch(setMyEncodingFile(imageList[0].file.name));
         } else {
           alert(data.result);
@@ -188,12 +203,13 @@ export default function EncoderSection(props) {
 
   useEffect(() => {
     // setDimension(targetRef.current.getClientBoundingRect())
-    // console.log(targetRef.current.getBoundingClientRect())
-    if (countNodes > 3) {
+    //console.log(targetRef.current.getBoundingClientRect())
+    console.log(countNodes);
+    if (countNodes > 2) {
       setMargin(margin - 30)
       setCountNodes(1)
     }
-    if (currentStep === (maxSteps - 1) && serverState?.state == 'publishing') {
+    if (currentStep === (maxSteps - 1) && serverState?.state === 'publishing') {
       const childId = addChild({
         name: '',
         imageUrl: animationSteps[currentStep]
@@ -206,7 +222,7 @@ export default function EncoderSection(props) {
 
   useEffect(() => {
     if (
-      serverState.state == 'publishing' && 
+      serverState.state === 'publishing' && 
       serverState?.sourceStep < maxSteps -1 && 
       tree.children.length > 0
     ) {
@@ -225,7 +241,7 @@ export default function EncoderSection(props) {
         {loading}
         <div className='encodeRandom'>
           <div className="encoderSection">
-            <button disabled={serverState?.state != 'idle'} className="btn generate" name="generate" type="onSubmit"
+            <button disabled={serverState?.state !== 'idle'} className="btn generate" name="generate" type="onSubmit"
               onClick={onSubmit}>Generate Randomly</button>
 
             <ImageUploading
@@ -241,7 +257,7 @@ export default function EncoderSection(props) {
               }) => (
 
                 <div className="upload__image-wrapper">
-                  <button disabled={serverState?.state != 'idle' || snapshot !== 'ffhq'} className="btn generate"
+                  <button disabled={serverState?.state !== 'idle' || snapshot !== 'ffhq'} className="btn generate"
                     style={isDragging ? { color: 'red' } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}> Upload your image </button>
@@ -252,8 +268,8 @@ export default function EncoderSection(props) {
           </div>
         </div>
       </div>
-      <div ref={targetRef} id="treeWrapper" style={{ width: '50em', height: '10em', marginLeft: `${margin}%`, marginTop: '-55%', position: 'relative' }}>
-        <Tree
+      <div ref={targetRef} id="treeWrapper" style={{ width: '600px', height: '10em', marginLeft: `${margin}%`, marginTop: '-65%', position: 'relative' }}>
+        <Tree 
           data={tree}
           renderCustomNodeElement={renderRectSvgNode}
         />

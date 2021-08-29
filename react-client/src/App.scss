@@ -65,6 +65,22 @@ h1 {
   font-size: 48px;
 }
 
+.num-people {
+  padding-top: 0;
+  margin-top: -2%;
+  color: rgb(193, 193, 193);
+  font-family: 'Lato';
+  letter-spacing: .15rem;
+  font-size: 16px;
+  margin-left: 5%;
+}
+
+.num-people.number {
+  margin-left: 0;
+  padding: 0 2px;
+  text-decoration: underline;
+}
+
 .page-title {
   font-family: 'Yanone Kaffeesatz', 'Lato', 'Roboto';  
   font-size: 100px;
@@ -321,13 +337,28 @@ input.steps {
   margin-left: 19%;
 }
 
-.saveLoad {
-  // margin-left: 58%;
-  // width: 700px;
+.downloadDiv{
+  width: 700px;
   margin-left: 70%;
-  width: 100%;
+}
+
+.saveLoad {
+  width: 80%;
+  margin-left: 45%;
   margin-top: 35px;
-  margin-bottom: 100px;
+  margin-bottom: 150px;
+  text-align: left;
+
+}
+
+.explain-slider {
+  padding-top: 0;
+  margin-top: -4%;
+  color: rgb(193, 193, 193);
+  font-family: 'Lato';
+  letter-spacing: .15rem;
+  font-size: 12px;
+  padding-bottom: 20px;
 }
 
 .saveForm {
@@ -376,10 +407,7 @@ input.save {
   border-radius: 0px;
   font-size: 14px;
   letter-spacing: 0.18rem;
-  padding: 5px;
-  float: right;
-  // margin-left: 5%;
-  // color: #CBCDCE;
+  padding: 0 5px;
   color: #C4FE00;
 }
 
@@ -724,7 +752,7 @@ svg {
   }
 
   .saveLoad {
-    margin-left: 20%;
+    margin-left: 30%;
     margin-bottom: 100px;
   }
 
