@@ -22,6 +22,9 @@ export default function EncoderSection(props) {
   const [r, setR] = useState(35)
   const [click, setClick] = useState(false)
   const [margin, setMargin] = useState(-18);
+  const [showDrag, setShowDrag] = useState(false)
+  const [showDragOnce, setShowDragOnce] = useState(0)
+  const [runOnce, setRunOnce] = useState(false)
   const [countNodes, setCountNodes] = useState(1);
   let targetRef = useRef();
   const [dimensions, setDimension] = useState({});
@@ -37,10 +40,10 @@ export default function EncoderSection(props) {
 
   const handleClick = () => {
     setClick(!click)
-    if(click) {
+    if (click) {
       setR(55)
     }
-    if(!click) {
+    if (!click) {
       setR(35)
     }
   }
@@ -77,7 +80,7 @@ export default function EncoderSection(props) {
         attributes: {
           image: data.imageUrl,
           uuid: uniqueId()
-        }, 
+        },
         children: [],
       }
     ]
@@ -99,7 +102,7 @@ export default function EncoderSection(props) {
         attributes: {
           image: data.imageUrl,
           uuid: newId,
-        }, 
+        },
         children: [],
       }
     ]
@@ -121,8 +124,8 @@ export default function EncoderSection(props) {
       attributes: {
         image: data.imageUrl,
         uuid: uniqueId()
-      }, 
-      children: [ lastChild.data ],
+      },
+      children: [lastChild.data],
     }
     // setCountNodes(countNodes + 1)
     parent.data.children = [between];
@@ -166,6 +169,7 @@ export default function EncoderSection(props) {
           alert(data.result);
         }
       })
+
   }
 
   const onChange = (imageList, addUpdateIndex) => {
@@ -177,7 +181,7 @@ export default function EncoderSection(props) {
     fetch(ENDPOINT + '/encode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: 
+      body:
         JSON.stringify({
           data: imageList[0].data_url,
           fileName: imageList[0].file.name,
@@ -186,7 +190,7 @@ export default function EncoderSection(props) {
           type: currentShuffle,
           currentStep: currentStep
         })
-      
+
     })
       .then(res => res.json())
       .then((data) => {
@@ -204,10 +208,10 @@ export default function EncoderSection(props) {
   useEffect(() => {
     // setDimension(targetRef.current.getClientBoundingRect())
     //console.log(targetRef.current.getBoundingClientRect())
-    console.log(countNodes);
     if (countNodes > 2) {
-      setMargin(margin - 30)
+      setMargin(margin - 20)
       setCountNodes(1)
+      setShowDragOnce(showDragOnce + 1)
     }
     if (currentStep === (maxSteps - 1) && serverState?.state === 'publishing') {
       const childId = addChild({
@@ -222,17 +226,27 @@ export default function EncoderSection(props) {
 
   useEffect(() => {
     if (
-      serverState.state === 'publishing' && 
-      serverState?.sourceStep < maxSteps -1 && 
+      serverState.state === 'publishing' &&
+      serverState?.sourceStep < maxSteps - 1 &&
       tree.children.length > 0
     ) {
-        const nextParent = addBetween({
-          name: serverState.sourceStep,
-          imageUrl: animationSteps[serverState.sourceStep]
-        })
-        setCurrentParent(nextParent);
+      const nextParent = addBetween({
+        name: serverState.sourceStep,
+        imageUrl: animationSteps[serverState.sourceStep]
+      })
+      setCurrentParent(nextParent);
     }
   }, [serverState])
+
+  useEffect(() => {
+    if (showDragOnce === 4 && !runOnce) {
+      setShowDrag(true)
+      setRunOnce(true)
+      setTimeout(() => {
+        setShowDrag(false)
+      }, 10000)
+    }
+  }, [countNodes])
 
 
   return (
@@ -261,15 +275,17 @@ export default function EncoderSection(props) {
                     style={isDragging ? { color: 'red' } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}> Upload your image </button>
-             &nbsp;
+                  &nbsp;
                 </div>
               )}
             </ImageUploading>
           </div>
         </div>
       </div>
-      <div ref={targetRef} id="treeWrapper" style={{ width: '600px', height: '10em', marginLeft: `${margin}%`, marginTop: '-65%', position: 'relative' }}>
-        <Tree 
+
+      <div className="treeWrapper" ref={targetRef} id="treeWrapper" style={{ width: '700px', height: '10em', marginLeft: `${margin}%`, marginTop: '-55%', position: 'relative' }}>
+        <img className="dragImg" src='./drag.png' alt='drag' height="40px" style={{ visibility: showDrag ? 'visible' : 'hidden' }} />
+        <Tree
           data={tree}
           renderCustomNodeElement={renderRectSvgNode}
         />

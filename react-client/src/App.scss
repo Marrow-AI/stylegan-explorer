@@ -348,7 +348,6 @@ input.steps {
   margin-top: 35px;
   margin-bottom: 150px;
   text-align: left;
-
 }
 
 .explain-slider {
@@ -520,7 +519,6 @@ input.save {
   color: rgb(236, 236, 236);
 }
 
-
 .logos {
   height: 25px;
   object-fit: contain;
@@ -591,6 +589,25 @@ input.save {
   cursor: pointer;
   color: #ED965F;
   border-radius: 15px;
+}
+
+.treeWrapper {
+  position: relative;
+}
+
+.dragImg {
+  position: absolute;
+  z-index: 100;
+  -webkit-animation: linear infinite alternate;
+  -webkit-animation-name: moveLeft;
+  -webkit-animation-duration: 5s;
+  margin-top: -10px;
+}
+
+@-webkit-keyframes moveLeft {
+  0% { left: 150%;}
+  50%{ left : 145%;}
+  100%{ left: 150%;}
 }
 
 .fileUploader {
