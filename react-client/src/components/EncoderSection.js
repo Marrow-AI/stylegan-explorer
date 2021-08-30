@@ -234,7 +234,7 @@ export default function EncoderSection(props) {
       })
       setCurrentParent(nextParent);
     }
-    if (serverState.state == 'idle' && serverState.lastError) {
+    if (serverState.state === 'idle' && serverState.lastError) {
       hideLoading()
     }
   }, [serverState])
@@ -283,7 +283,7 @@ export default function EncoderSection(props) {
                       {errors.maxFileSize && 
                       <span style={{ fontSize: '12px', color: 'red', textAlign: 'center' }}>
                         Your image size exceed max file size,
-                        <br /> Please upload up to 1MB.</span>}
+                        <br /> Please upload up to 3MB.</span>}
                     </div>}
                 </div>
               )}
