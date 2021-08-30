@@ -51,7 +51,7 @@ export default function Generate() {
   let imageRef = useRef();
 
   const searchParams = new URLSearchParams(window.location.search);
-  
+
   const handleChange = (event) => {
     if (event.target.value === 'person') {
       setSnapshot('ffhq')
@@ -122,7 +122,7 @@ export default function Generate() {
     if (dataset === 'person') {
       setPageTitle('Flickr-Faces-HQ Dataset')
     } else if (dataset === 'happy') {
-      setPageTitle('Happy Families Dinner Dataset')
+      setPageTitle('Happy Family Dinner Dataset')
     }
   }
 
@@ -158,7 +158,7 @@ export default function Generate() {
         changingPageTitle()
         hideLoading()
         setIsGenerated(true);
-      },100)
+      }, 100)
     }
   }, [serverState])
 
@@ -170,19 +170,19 @@ export default function Generate() {
         <div className="now-encoding" >
           {
             serverState.file === myEncodingFile ?
-            <span className='encoding-loder-text'>Encoding your image: {serverState?.file}
-              <br/>
-              <br/>
-              Please hold...It may take a few minutes.
-              <br/>
-            </span>
-            :
-            <span className='encoding-loder-text'>Someone is encoding: {serverState?.file}
-              <br/>
-              <br/>
-              Please hold...It may take a few minutes.
-              <br/>
-            </span>
+              <span className='encoding-loder-text'>Encoding your image: {serverState?.file}
+                <br />
+                <br />
+                Please hold...It may take a few minutes.
+                <br />
+              </span>
+              :
+              <span className='encoding-loder-text'>Someone is encoding: {serverState?.file}
+                <br />
+                <br />
+                Please hold...It may take a few minutes.
+                <br />
+              </span>
           }
           {loading}
         </div>
@@ -193,39 +193,38 @@ export default function Generate() {
           <div className="container" >
 
             {isGenerated ?
-                <EncoderSection />
+              <EncoderSection />
               :
               <form key={1} className="shuffleForm" onSubmit={handleSubmit(onSubmit)} >
                 {searchParams.has('marrow')
-? 
-                (
-                <FormControl required className={classes.formControl} >
+                  ?
+                  (
+                    <FormControl required className={classes.formControl} >
 
-                  <InputLabel className="inputNew" id="demo-simple-select-helper-label" >Choose a dataset</InputLabel>
-                  <Select className="select dataset" name="dataset" autoComplete="off"
-                    labelId="demo-simple-select-helper-label"
-                    id="demo-simple-select-helper"
-                    value={dataset}
-                    onChange={handleChange}
-                    ref={register}
-                  >
-                    <MenuItem value={"person"}>Flickr-Faces-HQ Dataset</MenuItem>
-                    <MenuItem value={"happy"} >Happy Families Dinner Dataset</MenuItem>
-                  </Select>
-                  <FormHelperText>Load a dataset of your intreset</FormHelperText>
-                </FormControl>
-                ) : (
-                  <p className='alternative-DStitle'>Flickr-Faces-HQ Dataset </p>
-                )
-              
-              }
+                      <InputLabel className="inputNew" id="demo-simple-select-helper-label" >Choose a dataset</InputLabel>
+                      <Select className="select dataset" name="dataset" autoComplete="off"
+                        labelId="demo-simple-select-helper-label"
+                        id="demo-simple-select-helper"
+                        value={dataset}
+                        onChange={handleChange}
+                        ref={register}
+                      >
+                        <MenuItem value={"person"}>Flickr-Faces-HQ Dataset</MenuItem>
+                        <MenuItem value={"happy"} >Happy Families Dinner Dataset</MenuItem>
+                      </Select>
+                      <FormHelperText>Load a dataset of your intreset</FormHelperText>
+                    </FormControl>
+                  ) : (
+                    <p className='alternative-DStitle'>Flickr-Faces-HQ Dataset </p>
+                  )
+                }
 
                 <div className="stepsDiv">
                   <label className="label steps"> Number of frames:</label>
                   <input className="input steps" autoComplete="off" name="steps" value={maxSteps} type="number" onChange={handleStepsChange} />
                   <FormHelperText>Choose number of frames of the animation sequence &mdash;<br />
-                  The bigger the number the longer the animation will be <br/>
-                  and the longer it will take to generate.</FormHelperText>
+                    The bigger the number the longer the animation will be <br />
+                    and the longer it will take to generate.</FormHelperText>
                 </div>
 
                 <div className="divBtnGnr">
@@ -256,10 +255,10 @@ export default function Generate() {
               </div>
             </div>
           </div>
-          {isGenerated ?   
-          <div className='downloadDiv'>       
-            <SaveForm />
-          </div>
+          {isGenerated ?
+            <div className='downloadDiv'>
+              <SaveForm />
+            </div>
             : ''}
         </div>
       </div>

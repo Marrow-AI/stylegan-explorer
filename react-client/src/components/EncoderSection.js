@@ -13,6 +13,7 @@ export default function EncoderSection(props) {
   const [loading, showLoading, hideLoading] = useSpinner();
   const ENDPOINT = useSelector(state => state.ENDPOINT);
   const [images, setImages] = useState([]);
+  const maxFileSize = 1000000;
   const currentStep = useSelector(state => state.currentStep);
   const currentShuffle = useSelector(state => state.currentShuffle);
   const snapshot = useSelector(state => state.snapshot);
@@ -64,7 +65,6 @@ export default function EncoderSection(props) {
           <circle r="5" fill='#000' stroke='transparent' onClick={handleClick} />
         </>
       )}
-
     </g>
   );
 
@@ -127,7 +127,6 @@ export default function EncoderSection(props) {
       },
       children: [lastChild.data],
     }
-    // setCountNodes(countNodes + 1)
     parent.data.children = [between];
     console.log("Tree", treeClone);
     setTree(treeClone);
@@ -169,7 +168,6 @@ export default function EncoderSection(props) {
           alert(data.result);
         }
       })
-
   }
 
   const onChange = (imageList, addUpdateIndex) => {
@@ -262,20 +260,28 @@ export default function EncoderSection(props) {
               value={images}
               onChange={onChange}
               dataURLKey="data_url"
+              maxFileSize={maxFileSize}
             >
               {({
                 imageList,
                 onImageUpload,
                 isDragging,
                 dragProps,
+                errors
               }) => (
-
                 <div className="upload__image-wrapper">
                   <button disabled={serverState?.state !== 'idle' || snapshot !== 'ffhq'} className="btn generate"
                     style={isDragging ? { color: 'red' } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}> Upload your image </button>
                   &nbsp;
+                  {errors &&
+                    <div>
+                      {errors.maxFileSize && 
+                      <span style={{ fontSize: '12px', color: 'red', textAlign: 'center' }}>
+                        Your image size exceed max file size,
+                        <br /> Please upload up to 1MB.</span>}
+                    </div>}
                 </div>
               )}
             </ImageUploading>
