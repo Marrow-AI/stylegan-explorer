@@ -369,19 +369,18 @@ class Gan(Thread):
                     self.linespaces = np.linspace(0, 1, self.steps)
                     self.linespace_i = 0;
 
-                    with self.app.app_context():
-                        emit('nowEncoding',{'file': None},namespace='/',broadcast=True)
-                    
                     future = self.loop.create_future()
                     self.queue.put((future, "publish", None))
 
                 except Exception as e:
-                    print("EXCEPTION {}".format(e))
+                    print("Encoder exception")
+                    self.state = {
+                        'state': 'idle',
+                        'steps': self.steps,
+                        'lastError': 'Could not encode the image'
+                    }
                     with self.app.app_context():
-                        emit('nowEncoding',{'file': None},namespace='/',broadcast=True)
-                    self.loop.call_soon_threadsafe(
-                        future.set_result, str(e)
-                    )
+                        self.broadcast_state()
 
     def encode(self, iterations, image):
         self.perceptual_model.set_reference_images([image])
@@ -467,6 +466,8 @@ class DummyGan(Thread):
         #data = blank_image
         return data
 
+connected_clients = 0
+
 loop = asyncio.get_event_loop()
 q = queue.Queue()
 app = Flask(__name__)
@@ -494,7 +495,18 @@ def on_connect():
     global gan
     if gan:
         emit('serverState',gan.state, namespace='/')
+
+    global connected_clients
+    connected_clients = connected_clients + 1 
+    print("Client connected {}. Total: {}".format(request.sid, connected_clients))
+    emit('connected-clients',{'value': connected_clients },broadcast=True, namespace='/')
     
+@socketio.on('disconnect')
+def on_disconnect():
+    global connected_clients
+    connected_clients = connected_clients - 1
+    print("Client disconnected {}. Total: {}".format(request.sid, connected_clients))
+    emit('connected-clients',{'value': connected_clients },broadcast=True, namespace='/')
 
 @app.route('/generate')
 def generate():
@@ -531,7 +543,7 @@ def shuffle():
             gan.start()
             return jsonify(result="OK")
     except Exception as e:
-        return jsonify(result="BUSY")
+        return jsonify(result="Something went wrong, try again later")
 
 
 @app.route('/save',  methods = ['POST'])
@@ -589,7 +601,7 @@ def encode():
         else:
             return jsonify(result=data)
     except Exception as e:
-        return jsonify(result="BUSY")
+        return jsonify(result="Something went wrong, try again later")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

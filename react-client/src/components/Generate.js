@@ -13,6 +13,7 @@ import SaveForm from "./SaveForm";
 import EncoderSection from "./EncoderSection";
 import Slider from '@material-ui/core/Slider';
 import useSpinner from './useSpinner';
+import { ToastContainer, toast } from 'react-toast';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,6 +49,9 @@ export default function Generate() {
   const [pageTitle, setPageTitle] = useState('LATENT SPACE EXPLORER');
   const [finishGenerating, setFinishGenerating] = useState(false)
   const [loading, showLoading, hideLoading] = useSpinner();
+  const numberPeople = useSelector(state => state.numberPeople);
+
+
   let imageRef = useRef();
 
   const searchParams = new URLSearchParams(window.location.search);
@@ -153,19 +157,34 @@ export default function Generate() {
 
   useEffect(() => {
     if (serverState.state !== 'idle' && !isGenerated) {
-      console.log("TOGGLING", dataset);
       setTimeout(() => {
         changingPageTitle()
         hideLoading()
         setIsGenerated(true);
       }, 100)
     }
+
+    if (serverState.state == 'idle' && serverState.lastError) {
+      hideLoading()
+      if (isGenerated) {
+        toast(`${serverState.lastError}`, {
+          backgroundColor: '#de3557',
+          color: '#ffffff',
+        })
+      }
+    }
   }, [serverState])
 
   return (
     <>
       <h1 className="secondTitle">{pageTitle}</h1>
-      <p className='num-people'>There is now <span className='num-people number'>X</span> people together with you.</p>
+
+      { numberPeople === 2 ? 
+        <p className='num-people'>There is now <span className='num-people number'>{numberPeople - 1}</span> person together with you.</p>
+        :
+        <p className='num-people'>There are now <span className='num-people number'>{numberPeople - 1}</span> people together with you.</p>
+      }
+
       {serverState?.state == 'encoding' && (
         <div className="now-encoding" >
           {
@@ -261,6 +280,7 @@ export default function Generate() {
             </div>
             : ''}
         </div>
+        <ToastContainer position='top-left' delay={8000} />
       </div>
       <Footer />
     </>

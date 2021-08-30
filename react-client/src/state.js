@@ -19,6 +19,14 @@ const serverStateHandler = (data) => {
   }
 }
 
+const connectedClientsHandler = (data) => {
+  console.log('Conneted clients:', data);
+  store.dispatch({
+    type: 'NUMBER_PEOPLE',
+    value: data.value
+  })
+}
+
 const reducer = (state = {
   socket: null,
   snapshot: 'ffhq',
@@ -29,17 +37,21 @@ const reducer = (state = {
   currentStep: 0,
   maxSteps: 20,
   currentShuffle: 'use_step',
+  numberPeople: 0,
   serverState: {state: 'idle'}
 }, action) => {
   switch (action.type) {  
     case 'SET_SOCKET': {
       console.log("Setting socket", action.socket);
       if (state.socket) {
-        state.socket.off('animationStep', animationStepHandler)
-        state.socket.off('serverState', serverStateHandler)
+        state.socket.off('animationStep', animationStepHandler);
+        action.socket.off('connected-clients', connectedClientsHandler);
+        state.socket.off('serverState', serverStateHandler);
       }
-      action.socket.on('animationStep', animationStepHandler)
-      action.socket.on('serverState', serverStateHandler)
+
+      action.socket.on('animationStep', animationStepHandler);
+      action.socket.on('serverState', serverStateHandler);
+      action.socket.on('connected-clients', connectedClientsHandler);
 
       return {...state, socket: action.socket}
   }
@@ -132,6 +144,12 @@ const reducer = (state = {
     return {
       ...state,
       myEncodingFile: action.value
+    }
+  }
+  case 'NUMBER_PEOPLE': {
+    return {
+      ...state,
+      numberPeople: action.value
     }
   }
   default:

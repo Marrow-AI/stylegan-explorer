@@ -13,7 +13,7 @@ export default function EncoderSection(props) {
   const [loading, showLoading, hideLoading] = useSpinner();
   const ENDPOINT = useSelector(state => state.ENDPOINT);
   const [images, setImages] = useState([]);
-  const maxFileSize = 1000000;
+  const maxFileSize = 3000000;
   const currentStep = useSelector(state => state.currentStep);
   const currentShuffle = useSelector(state => state.currentShuffle);
   const snapshot = useSelector(state => state.snapshot);
@@ -233,6 +233,9 @@ export default function EncoderSection(props) {
         imageUrl: animationSteps[serverState.sourceStep]
       })
       setCurrentParent(nextParent);
+    }
+    if (serverState.state == 'idle' && serverState.lastError) {
+      hideLoading()
     }
   }, [serverState])
 
