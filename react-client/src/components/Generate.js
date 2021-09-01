@@ -275,9 +275,10 @@ export default function Generate() {
             </div>
           </div>
           {isGenerated ?
-            <div className='downloadDiv'>
+            ''
+           /* <div className='downloadDiv'>
               <SaveForm />
-            </div>
+            </div>*/
             : ''}
         </div>
         <ToastContainer position='top-left' delay={8000} />
