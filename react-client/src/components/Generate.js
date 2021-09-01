@@ -164,11 +164,11 @@ export default function Generate() {
       }, 100)
     }
 
-    if (serverState.state == 'idle' && serverState.lastError) {
+    if (serverState.state === 'idle' && serverState.lastError) {
       hideLoading()
       if (isGenerated) {
-        toast(`${serverState.lastError}`, {
-          backgroundColor: '#de3557',
+        toast(`${serverState.lastError}, try again with a different image.`, {
+          backgroundColor: '#FB2626',
           color: '#ffffff',
         })
       }
@@ -180,12 +180,12 @@ export default function Generate() {
       <h1 className="secondTitle">{pageTitle}</h1>
 
       { numberPeople === 2 ? 
-        <p className='num-people'>There is now <span className='num-people number'>{numberPeople - 1}</span> person together with you.</p>
+        <p className='num-people'>There is now <span className='num-people number'>{numberPeople -1}</span> person together with you.</p>
         :
-        <p className='num-people'>There are now <span className='num-people number'>{numberPeople - 1}</span> people together with you.</p>
+        <p className='num-people'>There are now <span className='num-people number'>{numberPeople -1}</span> people together with you.</p>
       }
 
-      {serverState?.state == 'encoding' && (
+      {serverState?.state === 'encoding' && (
         <div className="now-encoding" >
           {
             serverState.file === myEncodingFile ?
