@@ -123,33 +123,11 @@ export default function SaveForm() {
 
   return(
     <>
-    <div className="saveLoad">
-    <button className="btn download" id="download-video" onClick={handleDownload}>Download Animation</button>
-
-    {/* <form className="saveForm" key={2} id="save" onSubmit={handleSubmit2(handleSave)}> */}
-      {/* <label className="label save">Save animation as:</label>
+    <form className="tagForm" key={2} id="save" onSubmit={handleSubmit2(handleSave)}> 
+      <label className="label save">Tag this frame:</label>
       <input className="input save" autoComplete="off" name="name" type="text" placeholder="type a name..." ref={register2} />
-      <button className="btn save" name="save" type="submit" ref={register2}>Save</button> */}
-    {/* </form> */}
-
-    {/* <form className="loadForm" key={3} id="load" onSubmit={handleSubmit3(handleLoad)}>
-      <FormControl className={classes.formControl}>
-        <InputLabel className="inputNew" id="demo-simple-select-helper-label">Choose a Clip</InputLabel>
-        <Select className="select load" autoComplete="off" name="animation"
-          labelId="demo-simple-select-helper-label"
-          id="demo-simple-select-helper"
-          value={animationClip}
-          onChange={handleAnimation}
-        >
-          {animation.map(value => (
-            <MenuItem key={value} value={value} ref={register3}>{value}</MenuItem>
-          ))}
-        </Select>
-        <FormHelperText>Load your saved animation</FormHelperText>
-      </FormControl>
-      <button className="btn load" name="load" type="submit" ref={register3}>Load</button>
-    </form> */}
-  </div>
+      <button className="btn save" name="tag" type="submit" ref={register2}>tag</button> 
+    </form>
   </>
   )
 }
