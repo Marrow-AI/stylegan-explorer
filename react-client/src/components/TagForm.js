@@ -27,20 +27,25 @@ const useStyles = makeStyles((theme) => ({
 export default function SaveForm() {
   const [animation, setAnimation] = useState([]);
   const { register: register2, handleSubmit: handleSubmit2 } = useForm({ mode: "onBlur" });
-  const { register: register3, handleSubmit: handleSubmit3 } = useForm({ mode: "onBlur" });
   const classes = useStyles();
   const [animationClip, setanimationlip] = useState('');
   const snapshots = useSelector(state => state.snapshot);
   const getImage = useSelector(state => state.getImage);
   const ENDPOINT = useSelector(state => state.ENDPOINT);
+  const dataset = useSelector(state => state.dataset);
+  const snapshot = useSelector(state => state.snapshot);
+  const currentStep = useSelector(state => state.currentStep);
 
-  const handleSave = (values, e) => {
+  const handleTag = (values, e) => {
     e.preventDefault();
     const form = e.target;
     const data = {
-      name: form.name.value
+      name: form.name.value,
+      dataset,
+      snapshot,
+      currentStep
     }
-    fetch(ENDPOINT + '/save', {
+    fetch(ENDPOINT + '/tag', {
       method: 'POST',
       mode: 'cors',
       headers: { 'Content-Type': 'application/json' },
@@ -55,52 +60,6 @@ export default function SaveForm() {
           alert("↪Your file is saved 🖥🔥");
         }
       })
-  }
-
-  const handleLoad = (values, e) => {
-    e.preventDefault();
-    const form = e.target;
-    const params = {
-      animation: form.animation.value
-    }
-    fetch(ENDPOINT + '/load', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
-    })
-      .then(res => res.json())
-      .then((data) => {
-        if (data.result.status === "new_snapshot") {
-          snapshots.value = data.result.snapshot;
-          return fetch('/load', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(params)
-          })
-            .then(res => res.json())
-        } else {
-          return data
-        }
-      })
-      .then((data) => {
-        if (data.result.status === "OK") {
-          console.log("Loading done", data);
-          store.dispatch(clearAnimationSteps());
-          store.dispatch(setMaxSteps(data.result.steps));
-          return fetch(ENDPOINT + '/publish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          })
-        } else {
-          alert(data.result.message);
-        }
-      });
-  }
-
-  const handleDownload = (e) => {
-    e.preventDefault()
-    window.open("/video?shadows=0" + "&dt=" + (new Date()).getTime(), "_blank")
   }
 
   const handleAnimation = (event) => {
@@ -123,9 +82,9 @@ export default function SaveForm() {
 
   return(
     <>
-    <form className="tagForm" key={2} id="save" onSubmit={handleSubmit2(handleSave)}> 
+    <form className="tagForm" key={2} id="save" onSubmit={handleSubmit2(handleTag)}> 
       <label className="label save">Tag this frame:</label>
-      <input className="input save" autoComplete="off" name="name" type="text" placeholder="type a name..." ref={register2} />
+      <input className="input save" maxLength="80" autoComplete="off" name="name" type="text" placeholder="type a name..." ref={register2} />
       <button className="btn save" name="tag" type="submit" ref={register2}>tag</button> 
     </form>
   </>

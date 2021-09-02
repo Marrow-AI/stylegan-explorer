@@ -7,6 +7,20 @@ import Tree from 'react-d3-tree';
 import { hierarchy, tree as d3Tree } from "d3";
 import { cloneDeep, uniqueId } from 'lodash';
 import useDimensions from 'react-use-dimensions';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles({
+  root: {
+    color: 'white',
+    "& .MuiFormLabel-root": {
+      color: '#3f51b5'
+    }
+  },
+});
+
 
 export default function EncoderSection(props) {
   const dataset = useSelector(state => state.dataset);
@@ -38,6 +52,11 @@ export default function EncoderSection(props) {
   });
 
   const [currentParent, setCurrentParent] = useState("ROOT");
+
+  const [options, setOptions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const tagsLoading = open && options.length === 0;
+
 
   const handleClick = () => {
     setClick(!click)
@@ -202,6 +221,10 @@ export default function EncoderSection(props) {
       })
   };
 
+  const handleTag = () => {
+
+  };
+
 
   useEffect(() => {
     // setDimension(targetRef.current.getClientBoundingRect())
@@ -249,6 +272,35 @@ export default function EncoderSection(props) {
     }
   }, [countNodes])
 
+  useEffect(() => {
+    let active = true;
+
+    if (!loading) {
+      return undefined;
+    }
+
+    (async () => {
+      const response = await fetch('https://country.register.gov.uk/records.json?page-size=5000');
+      await sleep(1e3); // For demo purposes.
+      const countries = await response.json();
+
+      if (active) {
+        setOptions(Object.keys(countries).map((key) => countries[key].item[0]));
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [loading]);
+
+  useEffect(() => {
+    if (!open) {
+      setOptions([]);
+    }
+  }, [open]);
+
+  const classes = useStyles();
 
   return (
     <div className="fileUploader">
@@ -288,11 +340,57 @@ export default function EncoderSection(props) {
                 </div>
               )}
             </ImageUploading>
+
+            <div>
+            <form id="tag" onSubmit={handleTag}>
+              <button disabled={serverState?.state !== 'idle'} className="btn generate gototag" name="gototag" type="onSubmit"
+                onClick={onSubmit}>Go to Tag</button>
+              <Autocomplete
+                id="tag-search"
+                className={classes.root}
+                style={{ 
+                  width: 300, 
+                  display:'inline-block', 
+                  position: 'relative',
+                  left: '10px',
+                  bottom: '13px'
+                }}
+                open={open}
+                onOpen={() => {
+                  setOpen(true);
+                }}
+                onClose={() => {
+                  setOpen(false);
+                }}
+                getOptionSelected={(option, value) => option.name === value.name}
+                getOptionLabel={(option) => option.name}
+                options={options}
+                loading={tagsLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Search for a tag"
+                    variant="outlined"
+                    InputProps={{
+                      ...params.InputProps,
+                      classes: {root: classes.root},
+                      endAdornment: (
+                        <React.Fragment>
+                          {tagsLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </React.Fragment>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </form>
+          </div>
           </div>
         </div>
       </div>
 
-      <div className="treeWrapper" ref={targetRef} id="treeWrapper" style={{ width: '700px', height: '10em', marginLeft: `${margin}%`, marginTop: '-55%', position: 'relative' }}>
+      <div className="treeWrapper" ref={targetRef} id="treeWrapper" style={{ width: '700px', height: '10em', marginLeft: `${margin}%`, marginTop: '-70%', position: 'relative' }}>
         <img className="dragImg" src='./drag.png' alt='drag' height="40px" style={{ visibility: showDrag ? 'visible' : 'hidden' }} />
         <Tree
           data={tree}

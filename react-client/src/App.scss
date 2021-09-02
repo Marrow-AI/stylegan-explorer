@@ -313,6 +313,11 @@ input.steps {
   padding: 18px 40px;
 }
 
+.btn.generate.gototag {
+  display: inline-block;
+}
+
+
 .imgControler {
   width: 600px;
   margin-top: -5%;
@@ -359,16 +364,12 @@ input.steps {
   font-size: 12px;
 }
 
-.tagForm {
- margin-left: -6%;
-}
-
 label.save {
   color: white;
   padding-left: 15px;
   padding-right:1px;
   letter-spacing: 0.1rem;
-  width: 300px;
+  width: 200px;
 }
 
 input.save {
@@ -422,6 +423,10 @@ input.save {
   text-align: left;
   justify-content: space-between;
   position: relative;
+}
+
+.MuiInputBase-root {
+  color: #EEBBF9;
 }
 
 .btn.load {
