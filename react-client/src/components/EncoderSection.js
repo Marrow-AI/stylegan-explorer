@@ -55,8 +55,9 @@ export default function EncoderSection(props) {
 
   const [options, setOptions] = useState([]);
   const [open, setOpen] = useState(false);
-  const tagsLoading = open && options.length === 0;
-
+  const [tagsLoading, setTagsLoading] = useState(false);
+  const [tagSearch, setTagSearch] = useState('');
+  const [selectedTag, setSelectedTag] = useState(null);
 
   const handleClick = () => {
     setClick(!click)
@@ -152,15 +153,26 @@ export default function EncoderSection(props) {
     return between.attributes.uuid;
   }
 
-  const onSubmit = () => {
+  const handleRandom = () => {
+    generate('shuffle', {})
+  }
+  
+  const handleTag = () => {
+    if (selectedTag) {
+      generate('gototag', { tagid: selectedTag.id })
+    }    
+  }
+
+  const generate = (action, params) => {
     const data = {
       dataset: dataset,
       steps: maxSteps,
       snapshot: snapshot,
       type: currentShuffle,
-      currentStep: currentStep
+      currentStep: currentStep,
+      ...params
     }
-    fetch(ENDPOINT + '/shuffle', {
+    fetch(ENDPOINT + '/' + action, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -219,12 +231,14 @@ export default function EncoderSection(props) {
           alert(data.result);
         }
       })
-  };
+  }
 
-  const handleTag = () => {
-
-  };
-
+  const onTagSearchChange = (event) => {
+    console.log("Set tag search", event.currentTarget.value)
+    setTagSearch(event.currentTarget.value);
+    setSelectedTag(null);
+    setTagsLoading(true);
+  }
 
   useEffect(() => {
     // setDimension(targetRef.current.getClientBoundingRect())
@@ -275,24 +289,32 @@ export default function EncoderSection(props) {
   useEffect(() => {
     let active = true;
 
-    if (!loading) {
+    if (!tagsLoading) {
       return undefined;
     }
 
     (async () => {
-      const response = await fetch('https://country.register.gov.uk/records.json?page-size=5000');
-      await sleep(1e3); // For demo purposes.
-      const countries = await response.json();
+      try {
+        const response = await fetch(`${ENDPOINT}/tags?dataset=${dataset}&snapshot=${snapshot}&search=${tagSearch}`)
+        const result = await response.json();
 
-      if (active) {
-        setOptions(Object.keys(countries).map((key) => countries[key].item[0]));
+        if (active) {
+          console.log("Result for " + tagSearch, result);
+          const resultOptions = result.map(obj => ({ id: obj[0], name: obj[1]}));
+          console.log("Options", resultOptions);
+          setOptions(resultOptions);
+          setTagsLoading(false);
+        }
+      } catch(e) {
+        console.log("Could not fetch options");
+        setTagsLoading(false);
       }
     })();
 
     return () => {
       active = false;
     };
-  }, [loading]);
+  }, [tagsLoading]);
 
   useEffect(() => {
     if (!open) {
@@ -309,7 +331,7 @@ export default function EncoderSection(props) {
         <div className='encodeRandom'>
           <div className="encoderSection">
             <button disabled={serverState?.state !== 'idle'} className="btn generate" name="generate" type="onSubmit"
-              onClick={onSubmit}>Generate Randomly</button>
+              onClick={handleRandom}>Generate Randomly</button>
 
             <ImageUploading
               value={images}
@@ -342,49 +364,53 @@ export default function EncoderSection(props) {
             </ImageUploading>
 
             <div>
-            <form id="tag" onSubmit={handleTag}>
-              <button disabled={serverState?.state !== 'idle'} className="btn generate gototag" name="gototag" type="onSubmit"
-                onClick={onSubmit}>Go to Tag</button>
-              <Autocomplete
-                id="tag-search"
-                className={classes.root}
-                style={{ 
-                  width: 300, 
-                  display:'inline-block', 
-                  position: 'relative',
-                  left: '10px',
-                  bottom: '13px'
-                }}
-                open={open}
-                onOpen={() => {
-                  setOpen(true);
-                }}
-                onClose={() => {
-                  setOpen(false);
-                }}
-                getOptionSelected={(option, value) => option.name === value.name}
-                getOptionLabel={(option) => option.name}
-                options={options}
-                loading={tagsLoading}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Search for a tag"
-                    variant="outlined"
-                    InputProps={{
-                      ...params.InputProps,
-                      classes: {root: classes.root},
-                      endAdornment: (
-                        <React.Fragment>
-                          {tagsLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                          {params.InputProps.endAdornment}
-                        </React.Fragment>
-                      ),
-                    }}
-                  />
-                )}
-              />
-            </form>
+            <button disabled={serverState?.state !== 'idle' || !selectedTag } className="btn generate gototag" name="gototag" type="onSubmit"
+              onClick={handleTag}>Go to Tag</button>
+            <Autocomplete
+              id="tag-search"
+              className={classes.root}
+              style={{ 
+                width: 300, 
+                display:'inline-block', 
+                position: 'relative',
+                left: '10px',
+                bottom: '13px'
+              }}
+              open={open}
+              onOpen={() => {
+                setOpen(true);
+                setTagsLoading(true);
+              }}
+              onClose={() => {
+                setOpen(false);
+              }}
+
+              getOptionSelected={(option, value) => option.name === value.name}
+              getOptionLabel={(option) => option.name}
+              options={options}
+              onChange={(e, value) => {
+                setSelectedTag(value);
+              }}
+              loading={tagsLoading}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Search for a tag"
+                  variant="outlined"
+                  onChange = {onTagSearchChange}
+                  InputProps={{
+                    ...params.InputProps,
+                    classes: {root: classes.root},
+                    endAdornment: (
+                      <React.Fragment>
+                        {tagsLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
           </div>
           </div>
         </div>

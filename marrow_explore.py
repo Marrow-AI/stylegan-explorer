@@ -228,6 +228,41 @@ class Gan(Thread):
                             future.set_result, str(e)
                         )
 
+            elif request == "gototag":
+                print("Going to tag {}, {} steps, snapshot {} type {}".format(args['tagid'], args['steps'],args['snapshot'], args['type']))
+                if args['snapshot'] != self.current_snapshot:
+                    self.current_snapshot = args['snapshot']
+                    print('New snapshot, quiting GAN thread')
+                    break
+                else:
+                    try:
+                        if args['type'] == 'use_step':
+                            self.source_step = int(args['currentStep'])
+                            print("Use step {} as source".format(self.source_step))
+                            self.latent_source = (self.linespaces[self.source_step] * self.latent_dest + (1-self.linespaces[self.source_step])*self.latent_source)
+                        else:
+                            self.load_latent_source_dlatents()
+
+                        self.latent_dest = np.load(
+                            '{}/{}-{}-{}.npy'.format(
+                                self.data_prefix,
+                                args["dataset"],
+                                args["snapshot"],
+                                args["tagid"]
+                            )
+                        )
+                        
+                        self.linespaces = np.linspace(0, 1, self.steps)
+
+                        self.linespace_i = -1
+                        self.loop.call_soon_threadsafe(
+                            future.set_result, "OK"
+                        )
+
+                    except Exception as e:
+                        self.loop.call_soon_threadsafe(
+                            future.set_result, str(e)
+                        )
             elif request == "save":
                 print("Saving current animation, name: {}".format(args['name']))
                 try:
@@ -286,8 +321,7 @@ class Gan(Thread):
                         ))
 
                         print("RowID: {}".format(cur.lastrowid))
-            
-                        latent_tag = (self.linespaces[self.linespace_i] * self.latent_dest + (1-self.linespaces[int(args["currentStep"])])*self.latent_source)
+                        latent_tag = (self.linespaces[int(args["currentStep"])] * self.latent_dest + (1-self.linespaces[int(args["currentStep"])])*self.latent_source)
 
                         with open('{}/{}-{}-{}.npy'.format(self.data_prefix, args["dataset"], args["snapshot"], cur.lastrowid), 'wb+') as tag_file:
                             np.save(tag_file, latent_tag)
@@ -591,6 +625,28 @@ def shuffle():
     except Exception as e:
         return jsonify(result="Something went wrong, try again later")
 
+@app.route('/gototag',  methods = ['POST'])
+def gototag():
+    future = loop.create_future()
+    params = request.get_json()
+    print(params)
+    q.put((future, "gototag", params))
+    try:
+        if params['snapshot'] == args.snapshot:
+            data = loop.run_until_complete(future)
+            return jsonify(result=data)
+        else:
+            print('Reloading GAN for new snapshot')
+            global gan
+            gan.join()
+            args.snapshot = params['snapshot']
+            args.steps = params['steps']
+            gan = Gan(q, args.data_path_prefix, app, loop, args)
+            gan.daemon = True
+            gan.start()
+            return jsonify(result="OK")
+    except Exception as e:
+        return jsonify(result="Something went wrong, try again later")
 
 @app.route('/save',  methods = ['POST'])
 def save():
@@ -607,6 +663,33 @@ def tag():
     q.put((future, "tag", params))
     data = loop.run_until_complete(future)
     return jsonify(result=data)
+
+@app.route('/tags',  methods = ['GET'])
+def tags():
+    data = []
+    print("Search tags {}".format(request.args))
+    dbcon = sqlite3.connect('{}/db.sqlite3'.format(args.data_path_prefix))
+    with dbcon:
+        sql = """
+            SELECT
+                rowid,
+                name
+            FROM tags
+            WHERE
+                `dataset` = ? AND
+                `snapshot` = ? AND
+                 INSTR(`name`, ?) > 0
+            ORDER BY rowid DESC
+            LIMIT 10
+        """
+        cur = dbcon.cursor()
+        cur.execute(sql, (
+            request.args.get("dataset"),
+            request.args.get("snapshot"),
+            request.args.get("search")
+        ))
+
+        return jsonify(cur.fetchall())
 
 @app.route('/video',  methods = ['GET'])
 def video():
