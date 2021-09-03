@@ -57,7 +57,7 @@ export default function SaveForm() {
         if (data.result !== "OK") {
           alert(data.result);
         } else {
-          alert("↪Your file is saved 🖥🔥");
+          alert("↪Your tag is saved 🖥🔥");
         }
       })
   }
