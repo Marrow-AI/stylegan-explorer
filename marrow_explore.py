@@ -678,7 +678,7 @@ def tags():
             WHERE
                 `dataset` = ? AND
                 `snapshot` = ? AND
-                 INSTR(`name`, ?) > 0
+                 INSTR(LOWER(`name`), LOWER(?)) > 0
             ORDER BY rowid DESC
             LIMIT 10
         """
