@@ -278,7 +278,7 @@ export default function Generate() {
           {isGenerated ?
             <div className='downloadDiv'>
               <div className="saveLoad">
-                <p className='explain-slider'>*Select the position from which to continue the exploration.</p>
+                <p className='explain-slider'>*Select the position from which to continue the exploration or save a frame.</p>
                 <TagForm />
               </div>
             </div>

@@ -365,11 +365,12 @@ input.steps {
 
 .explain-slider {
   padding-top: 0;
-  margin-top: -4%;
+  margin-top: -2%;
   color: rgb(193, 193, 193);
   font-family: 'Lato';
-  letter-spacing: .15rem;
-  font-size: 12px;
+  letter-spacing: .1rem;
+  font-size: 14px;
+  width: 500px;
 }
 
 label.save {
@@ -674,11 +675,11 @@ input.save {
 }
 
 button:disabled,
-button[disabled]{
+button[disabled], 
+.Mui-disabled{
   border: 2px solid rgb(50, 50, 50);
   background-color: rgb(25, 25, 25);
   color: #666666;
-  // cursor: not-allowed;
   pointer-events: none;
   cursor: no-drop;
 }

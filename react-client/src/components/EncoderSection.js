@@ -25,6 +25,10 @@ const useStyles = makeStyles({
       textAlign: 'center',
       fontWeight: '700',
     },
+    "& .MuiSelect-select" : {
+      border: '2px solid #EEBBF9',
+      borderRadius: '120px',
+    },
      "& .MuiInputBase-root" : {
       border: '2px solid #EEBBF9',
       borderRadius: '40px',
@@ -384,19 +388,12 @@ export default function EncoderSection(props) {
             </ImageUploading>
 
             <div>
-              <button className="btnFake" disabled={serverState?.state !== 'idle'} style={{
-                width:230, 
-                height: 60, 
-                position: 'relative',
-                marginTop: '50px',
-                border: '2px solid rgb(50, 50, 50)'
-                }}>
             {/* <button disabled={serverState?.state !== 'idle' || !selectedTag } className="btn generate gototag" name="gototag" type="onSubmit"
               onClick={handleTag}>Load a Tag</button> */}
             <Autocomplete
               id="tag-search"
               className={classes.root}
-              
+              disabled={serverState?.state !== 'idle' }
               style={{ 
                 position: 'absolute',
                 width: 230, 
@@ -405,9 +402,7 @@ export default function EncoderSection(props) {
                 boxShadow: '2px 3px 5px rgba(0, 0, 0, .75)',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                marginLeft: '-50%',
-                marginTop: '-13%'
-                
+                marginTop: '15%'
               }}
               open={open}
               onOpen={() => {
@@ -428,7 +423,7 @@ export default function EncoderSection(props) {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Generate a tag"
+                  label="Load a tag"
                   variant="outlined"
                   onChange = {onTagSearchChange}
                   InputProps={{
@@ -444,13 +439,12 @@ export default function EncoderSection(props) {
                 />
               )}
             />
-            </button>
           </div>
           </div>
         </div>
       </div>
 
-      <div className="treeWrapper" ref={targetRef} id="treeWrapper" style={{ width: '700px', height: '10em', marginLeft: `${margin}%`, marginTop: '-70%', position: 'relative' }}>
+      <div className="treeWrapper" ref={targetRef} id="treeWrapper" style={{ width: '700px', height: '10em', marginLeft: `${margin}%`, marginTop: '-55%', position: 'relative' }}>
         <img className="dragImg" src='./drag.png' alt='drag' height="40px" style={{ visibility: showDrag ? 'visible' : 'hidden' }} />
         <Tree
           data={tree}
