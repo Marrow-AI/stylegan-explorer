@@ -8,6 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { useSelector } from 'react-redux';
 import store, {clearAnimationSteps, setMaxSteps} from '../state';
+import { ToastContainer, toast } from "react-toast";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,9 +58,16 @@ export default function SaveForm() {
         if (data.result !== "OK") {
           alert(data.result);
         } else {
-          alert("↪Your tag is saved 🖥🔥");
+          notification()
         }
       })
+  }
+
+  const notification = () => {
+    toast(`Your tag has been saved`, {
+      backgroundColor: '#C4FE00',
+      color: '#000000',
+    })
   }
 
   const handleAnimation = (event) => {
@@ -83,10 +91,11 @@ export default function SaveForm() {
   return(
     <>
     <form className="tagForm" key={2} id="save" onSubmit={handleSubmit2(handleTag)}> 
-      <label className="label save">Tag this frame:</label>
-      <input className="input save" maxLength="80" autoComplete="off" name="name" type="text" placeholder="type a name..." ref={register2} />
-      <button className="btn save" name="tag" type="submit" ref={register2}>tag</button> 
+      {/* <label className="label save">Tag this frame:</label> */}
+      <input className="input save" maxLength="80" autoComplete="off" name="name" type="text" placeholder="Give this frame a tag" ref={register2} />
+      <button className="btn download" name="tag" type="submit" ref={register2}>tag</button> 
     </form>
+    <ToastContainer position='top-left' delay={8000} />
   </>
   )
 }

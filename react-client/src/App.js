@@ -8,7 +8,7 @@ import socketIOClient from "socket.io-client";
 import store, { setSocket } from './state'
 import { isMobile } from 'react-device-detect';
 
-const socket = socketIOClient('');
+const socket = socketIOClient('https://latentspace.tools');
 
 console.log("Connecting to socket");
 socket.on('connect', () => {
@@ -18,7 +18,7 @@ socket.on('connect', () => {
 
 
 function App() {
-  const ENDPOINT= ''
+  const ENDPOINT= 'https://latentspace.tools'
   
   store.dispatch({
     type: 'END_POINT',

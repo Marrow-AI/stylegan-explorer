@@ -11,12 +11,27 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
+import { InputLabel } from "@material-ui/core";
+import { pink } from "@material-ui/core/colors";
 
 const useStyles = makeStyles({
   root: {
     color: 'white',
+    cursor: 'pointer',
     "& .MuiFormLabel-root": {
-      color: '#3f51b5'
+      color: 'white',
+      fontSize:'14px',
+      fontFamily: 'Lato',
+      textAlign: 'center',
+      fontWeight: '700',
+    },
+     "& .MuiInputBase-root" : {
+      border: '2px solid #EEBBF9',
+      borderRadius: '40px',
+      cursor: 'pointer',
+    },
+    "& input" : {
+      cursor: 'pointer',
     }
   },
 });
@@ -238,6 +253,7 @@ export default function EncoderSection(props) {
     setTagSearch(event.currentTarget.value);
     setSelectedTag(null);
     setTagsLoading(true);
+    
   }
 
   useEffect(() => {
@@ -322,6 +338,10 @@ export default function EncoderSection(props) {
     }
   }, [open]);
 
+  useEffect(() => {
+    handleTag()
+  },[selectedTag])
+
   const classes = useStyles();
 
   return (
@@ -364,17 +384,30 @@ export default function EncoderSection(props) {
             </ImageUploading>
 
             <div>
-            <button disabled={serverState?.state !== 'idle' || !selectedTag } className="btn generate gototag" name="gototag" type="onSubmit"
-              onClick={handleTag}>Go to Tag</button>
+              <button className="btnFake" disabled={serverState?.state !== 'idle'} style={{
+                width:230, 
+                height: 60, 
+                position: 'relative',
+                marginTop: '50px',
+                border: '2px solid rgb(50, 50, 50)'
+                }}>
+            {/* <button disabled={serverState?.state !== 'idle' || !selectedTag } className="btn generate gototag" name="gototag" type="onSubmit"
+              onClick={handleTag}>Load a Tag</button> */}
             <Autocomplete
               id="tag-search"
               className={classes.root}
+              
               style={{ 
-                width: 300, 
-                display:'inline-block', 
-                position: 'relative',
-                left: '10px',
-                bottom: '13px'
+                position: 'absolute',
+                width: 230, 
+                display:'inline-block',
+                color: 'white',
+                boxShadow: '2px 3px 5px rgba(0, 0, 0, .75)',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                marginLeft: '-50%',
+                marginTop: '-13%'
+                
               }}
               open={open}
               onOpen={() => {
@@ -389,13 +422,13 @@ export default function EncoderSection(props) {
               getOptionLabel={(option) => option.name}
               options={options}
               onChange={(e, value) => {
-                setSelectedTag(value);
+                setSelectedTag(value)
               }}
               loading={tagsLoading}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Search for a tag"
+                  label="Generate a tag"
                   variant="outlined"
                   onChange = {onTagSearchChange}
                   InputProps={{
@@ -411,6 +444,7 @@ export default function EncoderSection(props) {
                 />
               )}
             />
+            </button>
           </div>
           </div>
         </div>

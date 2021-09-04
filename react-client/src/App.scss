@@ -252,6 +252,13 @@ button:hover {
   letter-spacing: .15rem;
 }
 
+#MuiInputBase-input {
+  padding-top: -.5rem;
+  color: #EEBBF9;
+  font-family: 'Lato';
+  letter-spacing: .15rem;
+}
+
 label {
   font-family: "Lato";
   display: inline-block;
@@ -282,12 +289,13 @@ label {
 
 input {
   display: inline-block;
-  font-size: 14px !important;
+  font-size: 18px !important;
   background-color:black;
-  color: white;
+  color: white !important;
   border: none;
   outline:none;
   font-family: "Lato";
+  // text-transform: capitalize;
 }
 
 input.steps {
@@ -372,14 +380,19 @@ label.save {
   width: 200px;
 }
 
+.tagForm {
+  margin-top: 50px;
+}
+
 input.save {
   border: none;
   outline:none;
-  border-bottom: 1px solid #3F51B5;
-  width: 180px;
+  border-bottom: 2px solid #C4FE00;
+  width: 220px;
   text-align: center;
-  font-family: 'Lato'; 
-  margin-left: -40px;
+  font-family: 'Lato';
+  font-weight: 500;
+  color: white;
 }
 
 .btn.save {
@@ -403,9 +416,9 @@ input.save {
   background: black;
   border: none;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.18rem;
-  padding: 0 5px;
+  padding: 0 15px;
   color: #C4FE00;
 }
 
@@ -665,8 +678,9 @@ button[disabled]{
   border: 2px solid rgb(50, 50, 50);
   background-color: rgb(25, 25, 25);
   color: #666666;
-  cursor: not-allowed;
+  // cursor: not-allowed;
   pointer-events: none;
+  cursor: no-drop;
 }
 
 .MuiDialog-paper {
