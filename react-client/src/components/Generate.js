@@ -10,6 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import store, { clearAnimationSteps, moveSteps, setStep, setMaxSteps } from '../state';
 import SaveForm from "./SaveForm";
+import TagForm from "./TagForm";
 import EncoderSection from "./EncoderSection";
 import Slider from '@material-ui/core/Slider';
 import useSpinner from './useSpinner';
@@ -275,10 +276,12 @@ export default function Generate() {
             </div>
           </div>
           {isGenerated ?
-            ''
-           /* <div className='downloadDiv'>
-              <SaveForm />
-            </div>*/
+            <div className='downloadDiv'>
+              <div className="saveLoad">
+                <p className='explain-slider'>*Select the position from which to continue the exploration or save a frame.</p>
+                <TagForm />
+              </div>
+            </div>
             : ''}
         </div>
         <ToastContainer position='top-left' delay={8000} />

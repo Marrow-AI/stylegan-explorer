@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-
 import sys
 
 import os, time, re
@@ -30,9 +29,12 @@ from flask_socketio import SocketIO,send,emit,join_room
 
 from keras import backend as K
 
+import sqlite3
+
 parser = argparse.ArgumentParser(description='Marrow StyleGAN Latent space explorer')
 
 parser.add_argument('--dummy', action='store_true' , help='Use a Dummy GAN')
+parser.add_argument('--data-path-prefix', metavar='Path', required=True, help='Prefix path for data files')
     
 args = parser.parse_args()
 
@@ -50,7 +52,7 @@ if not args.dummy:
     landmarks_detector = LandmarksDetector('marrow/shape_predictor_68_face_landmarks.dat')
 
 class Gan(Thread):
-    def __init__(self, queue, app, loop, args):
+    def __init__(self, queue, data_prefix, app, loop, args):
         self.queue = queue
         self.app = app
         self.loop = loop
@@ -59,6 +61,7 @@ class Gan(Thread):
         self.current_snapshot = args.snapshot
         self.state = {'state': 'idle'}
         self.source_step = None
+        self.data_prefix = data_prefix
         Thread.__init__(self)
 
     def run(self):
@@ -225,6 +228,41 @@ class Gan(Thread):
                             future.set_result, str(e)
                         )
 
+            elif request == "gototag":
+                print("Going to tag {}, {} steps, snapshot {} type {}".format(args['tagid'], args['steps'],args['snapshot'], args['type']))
+                if args['snapshot'] != self.current_snapshot:
+                    self.current_snapshot = args['snapshot']
+                    print('New snapshot, quiting GAN thread')
+                    break
+                else:
+                    try:
+                        if args['type'] == 'use_step':
+                            self.source_step = int(args['currentStep'])
+                            print("Use step {} as source".format(self.source_step))
+                            self.latent_source = (self.linespaces[self.source_step] * self.latent_dest + (1-self.linespaces[self.source_step])*self.latent_source)
+                        else:
+                            self.load_latent_source_dlatents()
+
+                        self.latent_dest = np.load(
+                            '{}/{}-{}-{}.npy'.format(
+                                self.data_prefix,
+                                args["dataset"],
+                                args["snapshot"],
+                                args["tagid"]
+                            )
+                        )
+                        
+                        self.linespaces = np.linspace(0, 1, self.steps)
+
+                        self.linespace_i = -1
+                        self.loop.call_soon_threadsafe(
+                            future.set_result, "OK"
+                        )
+
+                    except Exception as e:
+                        self.loop.call_soon_threadsafe(
+                            future.set_result, str(e)
+                        )
             elif request == "save":
                 print("Saving current animation, name: {}".format(args['name']))
                 try:
@@ -248,6 +286,47 @@ class Gan(Thread):
 
                     with open('animations/{}/dest.npy'.format(args['name']), 'wb+') as dest_file:
                         np.save(dest_file, self.latent_dest)
+
+                    self.loop.call_soon_threadsafe(
+                        future.set_result, "OK"
+                    )
+
+                except Exception as e:
+                    self.loop.call_soon_threadsafe(
+                        future.set_result, str(e)
+                    )
+            elif request == "tag":
+                print("Tag frame, params: {}".format(args))
+                try:
+                    dbcon = sqlite3.connect('{}/db.sqlite3'.format(self.data_prefix))
+                    
+                    with dbcon:
+                        sql = """
+                            INSERT INTO tags (
+                                `dataset`,
+                                `snapshot`,
+                                `step`,
+                                `name`
+                            )
+                            VALUES (
+                                ?, ?, ?, ?
+                            )
+                        """
+                        cur = dbcon.cursor()
+                        cur.execute(sql, (
+                            args["dataset"],
+                            args["snapshot"],
+                            args["currentStep"],
+                            args["name"]
+                        ))
+
+                        print("RowID: {}".format(cur.lastrowid))
+                        latent_tag = (self.linespaces[int(args["currentStep"])] * self.latent_dest + (1-self.linespaces[int(args["currentStep"])])*self.latent_source)
+
+                        with open('{}/{}-{}-{}.npy'.format(self.data_prefix, args["dataset"], args["snapshot"], cur.lastrowid), 'wb+') as tag_file:
+                            np.save(tag_file, latent_tag)
+
+                        dbcon.commit()
 
                     self.loop.call_soon_threadsafe(
                         future.set_result, "OK"
@@ -476,8 +555,9 @@ Compress(app)
 #args.snapshot = "007743"
 args.snapshot = "ffhq"
 
+
 if not args.dummy:
-    gan = Gan(q, app, loop, args)
+    gan = Gan(q, args.data_path_prefix, app, loop, args)
     gan.daemon = True
 else:
     gan = DummyGan(q,loop,args)
@@ -538,13 +618,35 @@ def shuffle():
             gan.join()
             args.snapshot = params['snapshot']
             args.steps = params['steps']
-            gan = Gan(q, app, loop, args)
+            gan = Gan(q, args.data_path_prefix, app, loop, args)
             gan.daemon = True
             gan.start()
             return jsonify(result="OK")
     except Exception as e:
         return jsonify(result="Something went wrong, try again later")
 
+@app.route('/gototag',  methods = ['POST'])
+def gototag():
+    future = loop.create_future()
+    params = request.get_json()
+    print(params)
+    q.put((future, "gototag", params))
+    try:
+        if params['snapshot'] == args.snapshot:
+            data = loop.run_until_complete(future)
+            return jsonify(result=data)
+        else:
+            print('Reloading GAN for new snapshot')
+            global gan
+            gan.join()
+            args.snapshot = params['snapshot']
+            args.steps = params['steps']
+            gan = Gan(q, args.data_path_prefix, app, loop, args)
+            gan.daemon = True
+            gan.start()
+            return jsonify(result="OK")
+    except Exception as e:
+        return jsonify(result="Something went wrong, try again later")
 
 @app.route('/save',  methods = ['POST'])
 def save():
@@ -553,6 +655,41 @@ def save():
     q.put((future, "save", params))
     data = loop.run_until_complete(future)
     return jsonify(result=data)
+
+@app.route('/tag',  methods = ['POST'])
+def tag():
+    future = loop.create_future()
+    params = request.get_json()
+    q.put((future, "tag", params))
+    data = loop.run_until_complete(future)
+    return jsonify(result=data)
+
+@app.route('/tags',  methods = ['GET'])
+def tags():
+    data = []
+    print("Search tags {}".format(request.args))
+    dbcon = sqlite3.connect('{}/db.sqlite3'.format(args.data_path_prefix))
+    with dbcon:
+        sql = """
+            SELECT
+                rowid,
+                name
+            FROM tags
+            WHERE
+                `dataset` = ? AND
+                `snapshot` = ? AND
+                 INSTR(LOWER(`name`), LOWER(?)) > 0
+            ORDER BY rowid DESC
+            LIMIT 10
+        """
+        cur = dbcon.cursor()
+        cur.execute(sql, (
+            request.args.get("dataset"),
+            request.args.get("snapshot"),
+            request.args.get("search")
+        ))
+
+        return jsonify(cur.fetchall())
 
 @app.route('/video',  methods = ['GET'])
 def video():
@@ -583,7 +720,7 @@ def load():
         global gan
         gan.join()
         args.snapshot = data['snapshot']
-        gan = Gan(q, app, loop, args)
+        gan = Gan(q, args.data_path_prefix, app, loop, args)
         gan.start()
         return jsonify(result=data)
     else:

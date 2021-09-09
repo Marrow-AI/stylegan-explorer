@@ -7,6 +7,39 @@ import Tree from 'react-d3-tree';
 import { hierarchy, tree as d3Tree } from "d3";
 import { cloneDeep, uniqueId } from 'lodash';
 import useDimensions from 'react-use-dimensions';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
+import { InputLabel } from "@material-ui/core";
+import { pink } from "@material-ui/core/colors";
+
+const useStyles = makeStyles({
+  root: {
+    color: 'white',
+    cursor: 'pointer',
+    "& .MuiFormLabel-root": {
+      color: 'white',
+      fontSize:'14px',
+      fontFamily: 'Lato',
+      textAlign: 'center',
+      fontWeight: '700',
+    },
+    "& .MuiSelect-select" : {
+      border: '2px solid #EEBBF9',
+      borderRadius: '120px',
+    },
+     "& .MuiInputBase-root" : {
+      border: '2px solid #EEBBF9',
+      borderRadius: '40px',
+      cursor: 'pointer',
+    },
+    "& input" : {
+      cursor: 'pointer',
+    }
+  },
+});
+
 
 export default function EncoderSection(props) {
   const dataset = useSelector(state => state.dataset);
@@ -38,6 +71,12 @@ export default function EncoderSection(props) {
   });
 
   const [currentParent, setCurrentParent] = useState("ROOT");
+
+  const [options, setOptions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [tagsLoading, setTagsLoading] = useState(false);
+  const [tagSearch, setTagSearch] = useState('');
+  const [selectedTag, setSelectedTag] = useState(null);
 
   const handleClick = () => {
     setClick(!click)
@@ -133,15 +172,26 @@ export default function EncoderSection(props) {
     return between.attributes.uuid;
   }
 
-  const onSubmit = () => {
+  const handleRandom = () => {
+    generate('shuffle', {})
+  }
+  
+  const handleTag = () => {
+    if (selectedTag) {
+      generate('gototag', { tagid: selectedTag.id })
+    }    
+  }
+
+  const generate = (action, params) => {
     const data = {
       dataset: dataset,
       steps: maxSteps,
       snapshot: snapshot,
       type: currentShuffle,
-      currentStep: currentStep
+      currentStep: currentStep,
+      ...params
     }
-    fetch(ENDPOINT + '/shuffle', {
+    fetch(ENDPOINT + '/' + action, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -200,8 +250,15 @@ export default function EncoderSection(props) {
           alert(data.result);
         }
       })
-  };
+  }
 
+  const onTagSearchChange = (event) => {
+    console.log("Set tag search", event.currentTarget.value)
+    setTagSearch(event.currentTarget.value);
+    setSelectedTag(null);
+    setTagsLoading(true);
+    
+  }
 
   useEffect(() => {
     // setDimension(targetRef.current.getClientBoundingRect())
@@ -249,6 +306,47 @@ export default function EncoderSection(props) {
     }
   }, [countNodes])
 
+  useEffect(() => {
+    let active = true;
+
+    if (!tagsLoading) {
+      return undefined;
+    }
+
+    (async () => {
+      try {
+        const response = await fetch(`${ENDPOINT}/tags?dataset=${dataset}&snapshot=${snapshot}&search=${tagSearch}`)
+        const result = await response.json();
+
+        if (active) {
+          console.log("Result for " + tagSearch, result);
+          const resultOptions = result.map(obj => ({ id: obj[0], name: obj[1]}));
+          console.log("Options", resultOptions);
+          setOptions(resultOptions);
+          setTagsLoading(false);
+        }
+      } catch(e) {
+        console.log("Could not fetch options");
+        setTagsLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [tagsLoading]);
+
+  useEffect(() => {
+    if (!open) {
+      setOptions([]);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    handleTag()
+  },[selectedTag])
+
+  const classes = useStyles();
 
   return (
     <div className="fileUploader">
@@ -257,7 +355,7 @@ export default function EncoderSection(props) {
         <div className='encodeRandom'>
           <div className="encoderSection">
             <button disabled={serverState?.state !== 'idle'} className="btn generate" name="generate" type="onSubmit"
-              onClick={onSubmit}>Generate Randomly</button>
+              onClick={handleRandom}>Generate Randomly</button>
 
             <ImageUploading
               value={images}
@@ -288,6 +386,60 @@ export default function EncoderSection(props) {
                 </div>
               )}
             </ImageUploading>
+
+            <div>
+            {/* <button disabled={serverState?.state !== 'idle' || !selectedTag } className="btn generate gototag" name="gototag" type="onSubmit"
+              onClick={handleTag}>Load a Tag</button> */}
+            <Autocomplete
+              id="tag-search"
+              className={classes.root}
+              disabled={serverState?.state !== 'idle' }
+              style={{ 
+                position: 'absolute',
+                width: 230, 
+                display:'inline-block',
+                color: 'white',
+                boxShadow: '2px 3px 5px rgba(0, 0, 0, .75)',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                marginTop: '15%'
+              }}
+              open={open}
+              onOpen={() => {
+                setOpen(true);
+                setTagsLoading(true);
+              }}
+              onClose={() => {
+                setOpen(false);
+              }}
+
+              getOptionSelected={(option, value) => option.name === value.name}
+              getOptionLabel={(option) => option.name}
+              options={options}
+              onChange={(e, value) => {
+                setSelectedTag(value)
+              }}
+              loading={tagsLoading}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Load a tag"
+                  variant="outlined"
+                  onChange = {onTagSearchChange}
+                  InputProps={{
+                    ...params.InputProps,
+                    classes: {root: classes.root},
+                    endAdornment: (
+                      <React.Fragment>
+                        {tagsLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
+          </div>
           </div>
         </div>
       </div>

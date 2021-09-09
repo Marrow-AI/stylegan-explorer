@@ -252,6 +252,13 @@ button:hover {
   letter-spacing: .15rem;
 }
 
+#MuiInputBase-input {
+  padding-top: -.5rem;
+  color: #EEBBF9;
+  font-family: 'Lato';
+  letter-spacing: .15rem;
+}
+
 label {
   font-family: "Lato";
   display: inline-block;
@@ -282,12 +289,13 @@ label {
 
 input {
   display: inline-block;
-  font-size: 14px !important;
+  font-size: 18px !important;
   background-color:black;
-  color: white;
+  color: white !important;
   border: none;
   outline:none;
   font-family: "Lato";
+  // text-transform: capitalize;
 }
 
 input.steps {
@@ -312,6 +320,11 @@ input.steps {
   border: 2px solid #EEBBF9;
   padding: 18px 40px;
 }
+
+.btn.generate.gototag {
+  display: inline-block;
+}
+
 
 .imgControler {
   width: 600px;
@@ -352,16 +365,12 @@ input.steps {
 
 .explain-slider {
   padding-top: 0;
-  margin-top: -4%;
+  margin-top: -2%;
   color: rgb(193, 193, 193);
   font-family: 'Lato';
-  letter-spacing: .15rem;
-  font-size: 12px;
-  padding-bottom: 20px;
-}
-
-.saveForm {
- margin-left: -18%;
+  letter-spacing: .1rem;
+  font-size: 14px;
+  width: 500px;
 }
 
 label.save {
@@ -369,18 +378,22 @@ label.save {
   padding-left: 15px;
   padding-right:1px;
   letter-spacing: 0.1rem;
-  width: 300px;
+  width: 200px;
+}
+
+.tagForm {
+  margin-top: 50px;
 }
 
 input.save {
   border: none;
   outline:none;
-  border-bottom: 1px solid #3F51B5;
-  width: 180px;
+  border-bottom: 2px solid #C4FE00;
+  width: 220px;
   text-align: center;
-  font-family: 'Lato'; 
-  margin-left: -40px;
-  text-transform: uppercase;
+  font-family: 'Lato';
+  font-weight: 500;
+  color: white;
 }
 
 .btn.save {
@@ -404,9 +417,9 @@ input.save {
   background: black;
   border: none;
   border-radius: 0px;
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.18rem;
-  padding: 0 5px;
+  padding: 0 15px;
   color: #C4FE00;
 }
 
@@ -424,6 +437,10 @@ input.save {
   text-align: left;
   justify-content: space-between;
   position: relative;
+}
+
+.MuiInputBase-root {
+  color: #EEBBF9;
 }
 
 .btn.load {
@@ -658,12 +675,13 @@ input.save {
 }
 
 button:disabled,
-button[disabled]{
+button[disabled], 
+.Mui-disabled{
   border: 2px solid rgb(50, 50, 50);
   background-color: rgb(25, 25, 25);
   color: #666666;
-  cursor: not-allowed;
   pointer-events: none;
+  cursor: no-drop;
 }
 
 .MuiDialog-paper {
