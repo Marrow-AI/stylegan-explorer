@@ -16,11 +16,10 @@ import { pink } from "@material-ui/core/colors";
 
 const useStyles = makeStyles({
   root: {
-    color: 'white',
-    cursor: 'pointer',
-    
+      color: 'white',
+      cursor: 'pointer',
       borderRadius: '120px',
-    '&:hover': {
+   '&:hover': {
       backgroundImage: "linear-gradient(to right, #eebbf9, #e497f5,#e882ff)",   
       },
     "& .MuiFormLabel-root": {
@@ -30,7 +29,6 @@ const useStyles = makeStyles({
       textAlign: 'center',
       fontWeight: '700',
       backgroundColor: 'transparent !important',
-      
     },
     "& .MuiSelect-select" : {
       border: '2px solid #EEBBF9',
@@ -274,13 +272,10 @@ export default function EncoderSection(props) {
     console.log("Set tag search", event.currentTarget.value)
     setTagSearch(event.currentTarget.value);
     setSelectedTag(null);
-    setTagsLoading(true);
-    
+    setTagsLoading(true); 
   }
 
   useEffect(() => {
-    // setDimension(targetRef.current.getClientBoundingRect())
-    //console.log(targetRef.current.getBoundingClientRect())
     if (countNodes > 2) {
       setMargin(margin - 20)
       setCountNodes(1)
@@ -362,7 +357,6 @@ export default function EncoderSection(props) {
 
   useEffect(() => {
     handleTag()    
-    
   },[selectedTag])
 
   const classes = useStyles();
@@ -407,7 +401,6 @@ export default function EncoderSection(props) {
             </ImageUploading>
 
             <div>
-        
             <Autocomplete
               id="tag-search"
               className={classes.root}
@@ -429,7 +422,6 @@ export default function EncoderSection(props) {
               onClose={() => {
                 setOpen(false);
               }}
-
               getOptionSelected={(option, value) => option.name === value.name}
               getOptionLabel={(option) => option.name}
               options={options}
