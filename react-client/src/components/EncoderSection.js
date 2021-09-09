@@ -18,12 +18,19 @@ const useStyles = makeStyles({
   root: {
     color: 'white',
     cursor: 'pointer',
+    
+      borderRadius: '120px',
+    '&:hover': {
+      backgroundImage: "linear-gradient(to right, #eebbf9, #e497f5,#e882ff)",   
+      },
     "& .MuiFormLabel-root": {
       color: 'white',
       fontSize:'14px',
       fontFamily: 'Lato',
       textAlign: 'center',
       fontWeight: '700',
+      backgroundColor: 'transparent !important',
+      
     },
     "& .MuiSelect-select" : {
       border: '2px solid #EEBBF9',
@@ -33,7 +40,7 @@ const useStyles = makeStyles({
       border: '2px solid #EEBBF9',
       borderRadius: '40px',
       cursor: 'pointer',
-      height: '55px !important'
+      height: '55px !important',
     },
     "& input" : {
       cursor: 'pointer',
@@ -354,7 +361,8 @@ export default function EncoderSection(props) {
   }, [open]);
 
   useEffect(() => {
-    handleTag()
+    handleTag()    
+    
   },[selectedTag])
 
   const classes = useStyles();
@@ -399,8 +407,7 @@ export default function EncoderSection(props) {
             </ImageUploading>
 
             <div>
-            {/* <button disabled={serverState?.state !== 'idle' || !selectedTag } className="btn generate gototag" name="gototag" type="onSubmit"
-              onClick={handleTag}>Load a Tag</button> */}
+        
             <Autocomplete
               id="tag-search"
               className={classes.root}
@@ -412,7 +419,7 @@ export default function EncoderSection(props) {
                 color: 'white',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                marginTop: '15%'
+                marginTop: '20%'
               }}
               open={open}
               onOpen={() => {

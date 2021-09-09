@@ -41,7 +41,9 @@ h1 {
   color: white;
 }
 
-
+.MuiAutocomplete-endAdornment {
+  display: none !important;
+} 
 .MuiSlider-rail {
   height: 15px !important;
 }
