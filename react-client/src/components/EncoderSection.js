@@ -33,6 +33,7 @@ const useStyles = makeStyles({
       border: '2px solid #EEBBF9',
       borderRadius: '40px',
       cursor: 'pointer',
+      height: '55px !important'
     },
     "& input" : {
       cursor: 'pointer',
@@ -46,7 +47,7 @@ const useStyles = makeStyles({
     "& .MuiInputLabel-root": {
       border: "2px solid rgb(25, 25, 25",
       backgroundColor: "rgb(25, 25, 25)",
-    }
+    }, 
   },
 });
 
@@ -436,7 +437,6 @@ export default function EncoderSection(props) {
                   label="Load a tag"
                   variant="outlined"
                   disabled={serverState?.state !== 'idle' }
-                
                   onChange = {onTagSearchChange}
                   InputProps={{
                     ...params.InputProps,
