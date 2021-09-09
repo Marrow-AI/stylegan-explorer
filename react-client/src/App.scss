@@ -365,7 +365,7 @@ input.steps {
 
 .explain-slider {
   padding-top: 0;
-  margin-top: -2%;
+  margin-top: -4%;
   color: rgb(193, 193, 193);
   font-family: 'Lato';
   letter-spacing: .1rem;
@@ -382,7 +382,7 @@ label.save {
 }
 
 .tagForm {
-  margin-top: 50px;
+  margin-top: 30px;
 }
 
 input.save {
@@ -676,7 +676,7 @@ input.save {
 
 button:disabled,
 button[disabled], 
-.Mui-disabled{
+.Mui-disabled {
   border: 2px solid rgb(50, 50, 50);
   background-color: rgb(25, 25, 25);
   color: #666666;

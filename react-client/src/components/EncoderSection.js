@@ -36,6 +36,16 @@ const useStyles = makeStyles({
     },
     "& input" : {
       cursor: 'pointer',
+    }, 
+    "& .Mui-disabled" : {
+      border: "2px solid rgb(25, 25, 25)",
+      backgroundColor: "rgb(25, 25, 25)",
+      color: "#666666",
+      cursor: "no-drop"
+    },
+    "& .MuiInputLabel-root": {
+      border: "2px solid rgb(25, 25, 25",
+      backgroundColor: "rgb(25, 25, 25)",
     }
   },
 });
@@ -423,8 +433,11 @@ export default function EncoderSection(props) {
               renderInput={(params) => (
                 <TextField
                   {...params}
+                  className={classes.root}
                   label="Load a tag"
                   variant="outlined"
+                  disabled={serverState?.state !== 'idle' }
+                
                   onChange = {onTagSearchChange}
                   InputProps={{
                     ...params.InputProps,
