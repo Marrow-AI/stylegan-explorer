@@ -389,11 +389,12 @@ input.save {
   border: none;
   outline:none;
   border-bottom: 2px solid #C4FE00;
-  width: 220px;
+  width: 250px;
   text-align: center;
   font-family: 'Lato';
-  font-weight: 500;
   color: white;
+  text-transform: uppercase;
+  font-size: 10px;
 }
 
 .btn.save {

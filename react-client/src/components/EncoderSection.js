@@ -409,7 +409,6 @@ export default function EncoderSection(props) {
                 width: 230, 
                 display:'inline-block',
                 color: 'white',
-                boxShadow: '2px 3px 5px rgba(0, 0, 0, .75)',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
                 marginTop: '15%'
