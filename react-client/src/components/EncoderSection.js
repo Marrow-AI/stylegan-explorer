@@ -402,6 +402,7 @@ export default function EncoderSection(props) {
               id="tag-search"
               className={classes.root}
               disabled={serverState?.state !== 'idle' }
+              blurOnSelect={true}
               value={selectedTag}
               style={{ 
                 position: 'absolute',

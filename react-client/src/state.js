@@ -6,12 +6,10 @@ const animationStepHandler = (data) => {
 }
 
 const nowEncodingHandler = (data) => {
-  console.log("NowEncoding state", data)
   store.dispatch(setNowEncoding(data));
 }
 
 const serverStateHandler = (data) => {
-  console.log("Server state", data)
   store.dispatch(setServerState(data));
   if (data.state == 'publishing') {
     store.dispatch(clearAnimationSteps());
@@ -20,7 +18,6 @@ const serverStateHandler = (data) => {
 }
 
 const connectedClientsHandler = (data) => {
-  console.log('Conneted clients:', data);
   store.dispatch({
     type: 'NUMBER_PEOPLE',
     value: data.value
@@ -42,7 +39,6 @@ const reducer = (state = {
 }, action) => {
   switch (action.type) {  
     case 'SET_SOCKET': {
-      console.log("Setting socket", action.socket);
       if (state.socket) {
         state.socket.off('animationStep', animationStepHandler);
         action.socket.off('connected-clients', connectedClientsHandler);
