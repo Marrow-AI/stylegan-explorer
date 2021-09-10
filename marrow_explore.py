@@ -623,6 +623,7 @@ def shuffle():
             gan.start()
             return jsonify(result="OK")
     except Exception as e:
+        print(e)
         return jsonify(result="Something went wrong, try again later")
 
 @app.route('/gototag',  methods = ['POST'])
@@ -646,6 +647,7 @@ def gototag():
             gan.start()
             return jsonify(result="OK")
     except Exception as e:
+        print(e)
         return jsonify(result="Something went wrong, try again later")
 
 @app.route('/save',  methods = ['POST'])
@@ -738,6 +740,7 @@ def encode():
         else:
             return jsonify(result=data)
     except Exception as e:
+        print(e)
         return jsonify(result="Something went wrong, try again later")
 
 @app.route('/', defaults={'path': ''})
