@@ -54,10 +54,10 @@ export default function SaveForm() {
     })
       .then(res => res.json())
       .then((data) => {
-        console.log("Result", data);
         if (data.result !== "OK") {
           alert(data.result);
         } else {
+          form.name.value = "";
           notification()
         }
       })

@@ -93,6 +93,7 @@ export default function EncoderSection(props) {
   const [tagsLoading, setTagsLoading] = useState(false);
   const [tagSearch, setTagSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState(null);
+  const [tagDirty, setTagDirty] = useState(null);
 
   const handleClick = () => {
     setClick(!click)
@@ -140,7 +141,6 @@ export default function EncoderSection(props) {
       }
     ]
     setCountNodes(countNodes + 1)
-    console.log("Tree", treeClone);
     setTree(treeClone);
     return lastChild.uuid;
   }
@@ -162,7 +162,6 @@ export default function EncoderSection(props) {
       }
     ]
     setCountNodes(countNodes + 1)
-    console.log("Tree", treeClone);
     setTree(treeClone);
     return newId;
   }
@@ -183,7 +182,6 @@ export default function EncoderSection(props) {
       children: [lastChild.data],
     }
     parent.data.children = [between];
-    console.log("Tree", treeClone);
     setTree(treeClone);
     return between.attributes.uuid;
   }
@@ -226,9 +224,10 @@ export default function EncoderSection(props) {
       })
       .then(res => res.json())
       .then((data) => {
-        console.log("Publish result", data);
         if (data.result === "OK") {
           showLoading();
+          setSelectedTag(null);
+          setTagSearch("");
           console.log("Server is publishing!");
         } else {
           alert(data.result);
@@ -261,6 +260,7 @@ export default function EncoderSection(props) {
         if (data.result === "OK") {
           setCountNodes(countNodes + 1)
           showLoading();
+          setTagDirty(!tagDirty);
           store.dispatch(setMyEncodingFile(imageList[0].file.name));
         } else {
           alert(data.result);
@@ -269,7 +269,6 @@ export default function EncoderSection(props) {
   }
 
   const onTagSearchChange = (event) => {
-    console.log("Set tag search", event.currentTarget.value)
     setTagSearch(event.currentTarget.value);
     setSelectedTag(null);
     setTagsLoading(true); 
@@ -332,9 +331,7 @@ export default function EncoderSection(props) {
         const result = await response.json();
 
         if (active) {
-          console.log("Result for " + tagSearch, result);
           const resultOptions = result.map(obj => ({ id: obj[0], name: obj[1]}));
-          console.log("Options", resultOptions);
           setOptions(resultOptions);
           setTagsLoading(false);
         }
@@ -405,6 +402,7 @@ export default function EncoderSection(props) {
               id="tag-search"
               className={classes.root}
               disabled={serverState?.state !== 'idle' }
+              value={selectedTag}
               style={{ 
                 position: 'absolute',
                 width: 230, 
