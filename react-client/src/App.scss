@@ -801,3 +801,10 @@ svg {
 .toast {
   font-size: 20px !important;
 }
+
+.MuiAutocomplete-input {
+  min-width: 180px !important;
+  position: relative;
+  bottom: 5px;
+  left: 10px;
+}
