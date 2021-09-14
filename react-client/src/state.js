@@ -27,6 +27,7 @@ const connectedClientsHandler = (data) => {
 const reducer = (state = {
   socket: null,
   snapshot: 'ffhq',
+  dataset: 'person',
   Get_Image: '',
   file_name: '',
   animationSteps: [],
@@ -192,6 +193,16 @@ export const setServerState  = (data) => ({
 export const setMyEncodingFile  = (value) => ({
   type: 'SET_MY_ENCODING_FILE',
   value
+})
+
+export const saveSnapshot  = (snapshot) => ({
+  type: 'SAVE_SNAPSHOT',
+  snapshot
+})
+
+export const saveDataset  = (dataset) => ({
+  type: 'SAVE_TYPE_DATASET',
+  dataset
 })
 
 const store = createStore(

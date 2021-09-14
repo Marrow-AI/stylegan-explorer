@@ -8,7 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import store, { clearAnimationSteps, moveSteps, setStep, setMaxSteps } from '../state';
+import store, { clearAnimationSteps, moveSteps, setStep, setMaxSteps, saveDataset, saveSnapshot } from '../state';
 import SaveForm from "./SaveForm";
 import TagForm from "./TagForm";
 import EncoderSection from "./EncoderSection";
@@ -36,8 +36,8 @@ export default function Generate() {
   const [view, setView] = useState();
   const { register, handleSubmit } = useForm({ mode: "onBlur" });
   const classes = useStyles();
-  const [dataset, setDataset] = useState('person');
-  const [snapshot, setSnapshot] = useState('ffhq');
+  const dataset = useSelector(state => state.dataset);
+  const snapshot = useSelector(state => state.snapshot);
   const [generating, setGenerating] = useState('use_step');
   const maxSteps = useSelector(state => state.maxSteps);
   const animationSteps = useSelector(state => state.animationSteps);
@@ -59,26 +59,14 @@ export default function Generate() {
 
   const handleChange = (event) => {
     if (event.target.value === 'person') {
-      setSnapshot('ffhq')
+      saveSnapshot('ffhq')
     } else if (event.target.value === 'happy') {
-      setSnapshot('007743')
+      saveSnapshot('007743')
     }
-    setDataset(event.target.value);
-    store.dispatch({
-      type: 'SAVE_TYPE_DATASET',
-      dataset: dataset
-    })
+    saveDataset(event.target.value);
   };
 
   const onSubmit = (values, ev) => {
-    store.dispatch({
-      type: 'SAVE_SNAPSHOT',
-      snapshot: snapshot
-    })
-    store.dispatch({
-      type: 'SAVE_TYPE_DATASET',
-      dataset: dataset
-    })
     const form = ev.target;
     const data = {
       dataset: dataset,
@@ -160,6 +148,8 @@ export default function Generate() {
     if (serverState.state !== 'idle' && !isGenerated) {
       setTimeout(() => {
         changingPageTitle()
+        saveDataset(serverState.dataset);
+        saveSnapshot(serverState.snapshot);
         hideLoading()
         setIsGenerated(true);
       }, 100)

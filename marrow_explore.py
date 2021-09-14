@@ -59,6 +59,7 @@ class Gan(Thread):
         self.args = args
         self.steps = int(args.steps) if 'steps' in args else 100
         self.current_snapshot = args.snapshot
+        self.dataset = args.dataset
         self.state = {'state': 'idle'}
         self.source_step = None
         self.data_prefix = data_prefix
@@ -173,7 +174,9 @@ class Gan(Thread):
                     self.state = {
                         'state': 'publishing',
                         'steps': self.steps,
-                        'sourceStep': self.source_step
+                        'sourceStep': self.source_step,
+                        'dataset': self.dataset,
+                        'snapshot': self.current_snapshot
                     }
                     self.broadcast_state()
                     for i in range(self.steps):
@@ -182,7 +185,9 @@ class Gan(Thread):
 
                     self.state = {
                         'state': 'idle',
-                        'steps': self.steps
+                        'steps': self.steps,
+                        'dataset': self.dataset,
+                        'snapshot': self.current_snapshot
                     }
                     self.broadcast_state()
 
@@ -554,6 +559,7 @@ Compress(app)
 
 #args.snapshot = "007743"
 args.snapshot = "ffhq"
+args.dataset  = "person"
 
 
 if not args.dummy:

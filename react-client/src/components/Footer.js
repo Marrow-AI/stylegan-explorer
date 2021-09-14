@@ -74,6 +74,9 @@ const Footer = () => {
             with the support of the National Film Board of Canada, ATLAS V and the CNC.
             <br />
             <br />
+            Source code is available <a className='link footer' href="https://github.com/Marrow-AI/stylegan-explorer" alt="" target="_blank" rel="noopener noreferrer">here.</a> Please use that repositoy to report on issues. Feature requests are also welcome.
+            <br />
+            <br />
             Read more about the motivation and code in this <a className='link footer' href="https://towardsdatascience.com/a-tool-for-collaborating-over-gans-latent-space-b7ea92ad63d8" alt="" target="_blank" rel="noopener noreferrer">
               Medium post</a>, and check out our <a className='link footer' href="https://dataset.tools/" alt="" target="_blank" rel="noopener noreferrer">Dataset tool</a>.
           </DialogContentText>
