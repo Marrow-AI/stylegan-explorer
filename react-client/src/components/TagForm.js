@@ -92,7 +92,7 @@ export default function SaveForm() {
     <>
     <form className="tagForm" key={2} id="save" onSubmit={handleSubmit2(handleTag)}> 
       {/* <label className="label save">Tag this frame:</label> */}
-      <input className="input save" maxLength="80" autoComplete="off" name="name" type="text" placeholder="tag this frame" ref={register2} />
+      <input className="input save" required maxLength="80" autoComplete="off" name="name" type="text" placeholder="tag this frame" ref={register2} />
       <button className="btn download" name="tag" type="submit" ref={register2}>save tag</button> 
     </form>
     <ToastContainer position='top-left' delay={8000} />
