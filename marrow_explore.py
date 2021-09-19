@@ -303,6 +303,8 @@ class Gan(Thread):
             elif request == "tag":
                 print("Tag frame, params: {}".format(args))
                 try:
+                    if not args["name"] or len(args["name"]) == 0:
+                        raise Exception('Tag name cannot be empty')
                     dbcon = sqlite3.connect('{}/db.sqlite3'.format(self.data_prefix))
                     
                     with dbcon:
